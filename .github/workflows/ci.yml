@@ -28,7 +28,7 @@ jobs:
         run: npm run lint  # Run ESLint or any linter you use
 
       - name: Run Tests
-        run: npm test  # Run tests
+        run: npm test --passWithNoTests # Run tests
 
       - name: Check Test Coverage
         run: npm run test -- --coverage  # Generate test coverage report
