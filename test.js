@@ -1,5 +1,5 @@
-console.log ("hello world!")
+console.log("hello world!")
 
-function add (a, b) {
-        return a + b
+function add(a, b) {
+    return a + b
 }
