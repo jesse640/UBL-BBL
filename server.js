@@ -12,9 +12,8 @@ app.get('/', (req, res) => {
   res.send('Hello node api boss')
 })
 
-app.post('/user/signup', async(req, res) => {
+app.post('/user/signup', async (req, res) => {
   try {
-
     // check if username/email already exist
     const exists = User.findOne(req.body.email)
     if (exists) {
@@ -25,12 +24,15 @@ app.post('/user/signup', async(req, res) => {
     const salt = await bcrypt.genSalt()
     const hashedPassword = await bcrypt.hash(req.body.password, salt)
 
-    const hashedUser = { username: req.body.username, email: req.body.email, password: hashedPassword }
+    const hashedUser = { 
+      username: req.body.username,
+      email: req.body.email,
+      password: hashedPassword
+    }
     
     // create user with hashed password and store in database
     const user = await User.create(hashedUser)
     res.status(200).json(user)
-
   } catch (error) {
     console.log(error.message)
     res.status(500).json(error.message)
@@ -42,15 +44,15 @@ app.post('/user/login', async(req, res) => {
 
   try {
     // check if user exists in database
-    const user = await User.findOne({email})
+    const user = await User.findOne({ email })
     if (!user) {
-        return res.status(400).json({ error: "user doesn't exist"})
+      return res.status(400).json({ error: "user doesn't exist"})
     }
 
     // check encrypted password is correct
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
-        return res.status(400).json({ error: "incorrect password" })
+      return res.status(400).json({ error: "incorrect password" })
     }
     res.status(200).json("successful login")
   } catch (error) {
