@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const res = require('express/lib/response')
 const mongoose = require('mongoose')
 const PORT = 3000
 
