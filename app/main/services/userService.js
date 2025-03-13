@@ -1,9 +1,8 @@
 require('dotenv').config()
 const User = require('../models/UsersModel')
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken');
-const createError = require('http-errors');
-const { use } = require('../routes/testRoutes');
+const jwt = require('jsonwebtoken')
+const createError = require('http-errors')
 
 exports.signup = async (userData) => {
   const { username, email, password } = userData
@@ -36,7 +35,7 @@ exports.signup = async (userData) => {
 }
 
 exports.login = async (userData) => {
-  const { email, password } = userData;
+  const { email, password } = userData
 
   // Check if user exists
   const user = await User.findOne({ email })
@@ -47,12 +46,12 @@ exports.login = async (userData) => {
   if (!isMatch) throw createError(400, 'Incorrect password')
 
   // Generate token
-  const token = jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' })
-  return token;
+  const token = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' })
+  return token
 }
 
 exports.getInfo = async (userData) => {
-  const { email } = userData;
+  const { email } = userData
   // Check if user exists
   const user = await User.findOne({ email })
   if (!user) throw createError(400, 'User doesn\'t exist')

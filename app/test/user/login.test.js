@@ -6,8 +6,8 @@ server.close()
 
 describe('POST /user/login', () => {
   beforeAll(async () => {
-    await User.deleteMany({ email: 'testuser@example.com' }); // Ensure clean DB
-  });
+    await User.deleteMany({ email: 'testuser@example.com' }) // Ensure clean DB
+  })
 
   afterAll(async () => {
     await mongoose.connection.close() // Ensure DB connection is closed
@@ -26,7 +26,7 @@ describe('POST /user/login', () => {
       .send(newUser)
       .expect(201)
 
-      expect(response.body.message).toBe('Signup successful')
+    expect(response.body.message).toBe('Signup successful')
 
     const newLogin = {
       email: 'testuser@example.com',
@@ -38,7 +38,7 @@ describe('POST /user/login', () => {
       .send(newLogin)
       .expect(200)
 
-      expect(response2.body.message).toBe('Login successful')
+    expect(response2.body.message).toBe('Login successful')
 
     await User.findByIdAndDelete(response.body.user._id) // Remove test user
   })
