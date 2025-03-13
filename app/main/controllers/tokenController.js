@@ -9,7 +9,7 @@ exports.tokenAuth = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET) //verifies token
-    req.user = decoded.user
+    req.body = decoded.user
     next()
   } catch (error) {
     res.clearCookie('token')

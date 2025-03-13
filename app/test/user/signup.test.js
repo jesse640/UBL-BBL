@@ -2,9 +2,12 @@ const request = require('supertest')
 const { app, server } = require('../../main/server')
 const User = require('../../main/models/UsersModel')
 const mongoose = require('mongoose') // Import mongoose for DB teardown
-server.close()
 
 describe('POST /user/signup', () => {
+  beforeAll(async () => {
+      await User.deleteMany({ email: 'testuser@example.com' }); // Ensure clean DB
+    });
+    
   afterAll(async () => {
     await mongoose.connection.close() // Ensure DB connection is closed
     server.close()

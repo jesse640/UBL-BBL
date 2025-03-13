@@ -5,6 +5,10 @@ const mongoose = require('mongoose') // Import mongoose for DB teardown
 server.close()
 
 describe('POST /user/login', () => {
+  beforeAll(async () => {
+    await User.deleteMany({ email: 'testuser@example.com' }); // Ensure clean DB
+  });
+
   afterAll(async () => {
     await mongoose.connection.close() // Ensure DB connection is closed
     server.close()

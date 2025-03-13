@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const userController = require('../controllers/userController')
-const tokenController = require('../controllers/tokenAuth')
+const tokenController = require('../controllers/tokenController')
 
 // Define routes
 router.post('/signup', userController.signup)

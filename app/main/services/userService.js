@@ -2,23 +2,26 @@ require('dotenv').config()
 const User = require('../models/UsersModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
+const createError = require('http-errors');
+const { use } = require('../routes/testRoutes');
 
 exports.signup = async (userData) => {
   const { username, email, password } = userData
 
   // Check for missing fields
-  if (!username || !email || !password) throw new Error('Missing fields')
+  if (!username || !email || !password) throw createError(400, 'Missing fields')
 
   // check if email is valid
-  if (!isValidEmail(email)) throw new Error('Invalid email')
+  if (!isValidEmail(email)) throw createError(400, 'Invalid email')
 
   // Check if user already exists
   const existingUser = await User.findOne({ email })
-  if (existingUser) throw new Error('User already exists')
+  if (existingUser) throw createError(400, 'User already exists')
 
   // check valid password
   if (!isValidPassword(password)) {
-    throw new Error(
+    throw createError(
+      400,
       'Password must be at least 8 characters long, include 1 uppercase, ' +
           '1 number, and 1 special character.'
     )
@@ -33,20 +36,33 @@ exports.signup = async (userData) => {
 }
 
 exports.login = async (userData) => {
-    const { email, password } = userData;
+  const { email, password } = userData;
 
-    // Check if user exists
-    const user = await User.findOne({ email })
-    if (!user) throw new Error('User doesn\'t exist')
+  // Check if user exists
+  const user = await User.findOne({ email })
+  if (!user) throw createError(400, 'User doesn\'t exist')
 
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) throw new Error('Incorrect password')
+  // Compare password
+  const isMatch = await bcrypt.compare(password, user.password)
+  if (!isMatch) throw createError(400, 'Incorrect password')
 
-    // Generate token
-    const token = jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' })
-    return token;
-};
+  // Generate token
+  const token = jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' })
+  return token;
+}
+
+exports.getInfo = async (userData) => {
+  const { email } = userData;
+  // Check if user exists
+  const user = await User.findOne({ email })
+  if (!user) throw createError(400, 'User doesn\'t exist')
+  return {
+    username: user.username,
+    email: user.email,
+    businesses: user.businesses,
+    invoices: user.invoices
+  }
+}
 
 /// /////////////// HELPER FUNCTIONS //////////////////////////////////////
 
