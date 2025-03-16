@@ -2,26 +2,28 @@ require('dotenv').config()
 const User = require('../models/UsersModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const createError = require('http-errors')
 
 exports.signup = async (userData) => {
   const { username, email, password } = userData
 
   // Check for missing fields
-  if (!username || !email || !password) throw new Error('Missing fields')
+  if (!username || !email || !password) throw createError(400, 'Missing fields')
 
   // check if email is valid
-  if (!isValidEmail(email)) throw new Error('Invalid email')
+  if (!isValidEmail(email)) throw createError(400, 'Invalid email')
 
   // Check if user already exists
   const existingUser = await User.findOne({ email })
-  if (existingUser) throw new Error('User already exists')
+  if (existingUser) throw createError(400, 'User already exists')
 
   const existingUsername = await User.findOne({ username })
-  if (existingUsername) throw new Error('Username already exists')
+  if (existingUsername) throw createError(400, 'Username already exists')
 
   // check valid password
   if (!isValidPassword(password)) {
-    throw new Error(
+    throw createError(
+      400,
       'Password must be at least 8 characters long, include 1 uppercase, ' +
           '1 number, and 1 special character.'
     )
@@ -40,11 +42,11 @@ exports.login = async (userData) => {
 
   // Check if user exists
   const user = await User.findOne({ email })
-  if (!user) throw new Error('User doesn\'t exist')
+  if (!user) throw createError(404, 'User doesn\'t exist')
 
   // Compare password
   const isMatch = await bcrypt.compare(password, user.password)
-  if (!isMatch) throw new Error('Incorrect password')
+  if (!isMatch) throw createError(400, 'Incorrect password')
 
   // Generate token
   const token = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' })
@@ -57,17 +59,17 @@ exports.putInfo = async (userData) => {
 
   // checks if user exists
   const user = await User.findOne({ email })
-  if (!user) throw new Error('User doesn\'t exist')
+  if (!user) throw createError(404, 'User doesn\'t exist')
 
-  if (newusername == null && newemail == null && newpassword == null) throw new Error('No user info changed')
+  if (newusername == null && newemail == null && newpassword == null) throw createError(400, 'No user info changed')
 
   if (newusername != null) {
     // error checking
-    if (user.username === newusername) throw new Error('New username should not be current username')
+    if (user.username === newusername) throw createError(400, 'New username should not be current username')
 
     const username = newusername
     const existingUsername = await User.findOne({ username })
-    if (existingUsername) throw new Error('Username already exists')
+    if (existingUsername) throw createError(400, 'Username already exists')
     // updating username
     await User.updateOne({ email: user.email }, { $set: { username: newusername } })
   }
@@ -75,10 +77,11 @@ exports.putInfo = async (userData) => {
   if (newpassword != null) {
     // error checking
     const isMatch = await bcrypt.compare(newpassword, user.password)
-    if (isMatch) throw new Error('New password should not be current password')
+    if (isMatch) throw createError(400, 'New password should not be current password')
 
     if (!isValidPassword(newpassword)) {
-      throw new Error(
+      throw createError(
+        400, 
         'Password must be at least 8 characters long, include 1 uppercase, ' +
             '1 number, and 1 special character.'
       )
@@ -90,13 +93,13 @@ exports.putInfo = async (userData) => {
 
   if (newemail != null) {
     // error checking
-    if (user.email === newemail) throw new Error('New email should not be current email')
+    if (user.email === newemail) throw createError(400, 'New email should not be current email')
 
     email = newemail
     const existingEmail = await User.findOne({ email })
-    if (existingEmail) throw new Error('Email is already being used')
+    if (existingEmail) throw createError(400, 'Email is already being used')
 
-    if (!isValidEmail(newemail)) throw new Error('Invalid email')
+    if (!isValidEmail(newemail)) throw createError(400, 'Invalid email')
     // updating uer
     await User.updateOne({ email: user.email }, { $set: { email: newemail } })
   }

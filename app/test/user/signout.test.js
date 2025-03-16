@@ -20,7 +20,7 @@ describe('POST /user/signout', () => {
       password: 'Password123*'
     }
 
-    await request(app)
+    signInResoinse = await request(app)
       .post('/user/signup')
       .send(newUser)
       .expect(201)
@@ -47,5 +47,8 @@ describe('POST /user/signout', () => {
 
     expect(response.body.message).toBe('Logged out')
     expect(response.headers['set-cookie'][0]).toMatch(/token=none/)
+
+
+    userId = signInResoinse.body.user._id
   })
 })
