@@ -115,6 +115,11 @@ describe('PUT /invoices/:invoiceid', () => {
     }
 
     expect(JSON.stringify(response5Result)).toBe(JSON.stringify(expectedResult))
+
+    await User.findOneAndDelete({ username: newUser.username })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice.invoiceNo })
+    await Business.findOneAndDelete({ busName: business.busName })
+    await Client.findOneAndDelete({ recepientName: client.recepientName })
   })
 
   it('should error as the invoiceId does not exist', async () => {
@@ -145,10 +150,7 @@ describe('PUT /invoices/:invoiceid', () => {
 
     expect(response2.body.message).toBe('Login successful')
 
-    // const clientId = new mongoose.Types.ObjectId("aaaaaaaaaaaaaaaaaaaaaaaa")
     const client = { recepientName: 'Name' }
-
-    // const businessId = new mongoose.Types.ObjectId("aaaaaaaaaaaaaaaaaaaaaaab")
     const business = { busName: 'Bruh' }
 
     const newInvoice = {
@@ -194,6 +196,8 @@ describe('PUT /invoices/:invoiceid', () => {
       .expect(400)
 
     expect(response4.body.error).toBe('Invoice does not exist')
+
+    await User.findOneAndDelete({ username: newUser.username })
   })
 
   it('should error as the product fees are not numbers', async () => {
@@ -266,6 +270,11 @@ describe('PUT /invoices/:invoiceid', () => {
       .expect(400)
 
     expect(response4.body.error).toBe('Product fees must be numbers')
+
+    await User.findOneAndDelete({ username: newUser.username })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice.invoiceNo })
+    await Business.findOneAndDelete({ busName: business.busName })
+    await Client.findOneAndDelete({ recepientName: client.recepientName })
   })
 })
 

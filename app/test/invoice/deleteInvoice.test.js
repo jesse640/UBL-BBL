@@ -90,6 +90,8 @@ describe('DELETE /invoices/:invoiceId', () => {
       .expect(400)
 
     expect(response6.body.error).toBe('Invoice does not exist')
+
+    await User.findOneAndDelete({ username: newUser.username })
   })
 
   it('should error as the invoice no longer exists', async () => {
@@ -169,6 +171,8 @@ describe('DELETE /invoices/:invoiceId', () => {
       .expect(400)
 
     expect(response6.body.error).toBe('Invoice does not exist')
+
+    await User.findOneAndDelete({ username: newUser.username })
   })
 
   // it('should error as the token is invalid', async () => {

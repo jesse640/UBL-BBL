@@ -4,8 +4,8 @@
   "description": "SENG2021 Project",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon app/main/server.js",
-    "start": "node app/main/server.js",
+    "dev": "nodemon app/api/server.js",
+    "start": "node app/api/server.js",
     "test": "jest --runInBand",
     "lint": "standard --env jest"
   },

@@ -104,6 +104,14 @@ describe('POST /invoices/:invoiceId', () => {
     const expected = ['Testing', 'Tester']
 
     expect(result).toEqual(expected)
+
+    await User.findOneAndDelete({ username: newUser.username })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice.invoiceNo })
+    await Business.findOneAndDelete({ busName: business.busName })
+    await Client.findOneAndDelete({ recepientName: client.recepientName })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice2.invoiceNo })
+    await Business.findOneAndDelete({ busName: business2.busName })
+    await Client.findOneAndDelete({ recepientName: client2.recepientName })
   })
 
   it('should error as there are no invoices starting with the given string', async () => {
@@ -190,5 +198,13 @@ describe('POST /invoices/:invoiceId', () => {
       .send()
       .expect(400)
     expect(response5.body.error).toEqual('No results')
+
+    await User.findOneAndDelete({ username: newUser.username })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice.invoiceNo })
+    await Business.findOneAndDelete({ busName: business.busName })
+    await Client.findOneAndDelete({ recepientName: client.recepientName })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice2.invoiceNo })
+    await Business.findOneAndDelete({ busName: business2.busName })
+    await Client.findOneAndDelete({ recepientName: client2.recepientName })
   })
 })

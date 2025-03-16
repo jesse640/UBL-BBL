@@ -5,10 +5,7 @@ const mongoose = require('mongoose')
 server.close()
 
 describe('POST /user/signout', () => {
-  let userId
-
   afterAll(async () => {
-    await User.findByIdAndDelete(userId)
     await mongoose.connection.close()
     server.close()
   })
@@ -47,5 +44,7 @@ describe('POST /user/signout', () => {
 
     expect(response.body.message).toBe('Logged out')
     expect(response.headers['set-cookie'][0]).toMatch(/token=none/)
+
+    await User.findOneAndDelete({ username: newUser.username })
   })
 })
