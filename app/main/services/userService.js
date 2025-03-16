@@ -40,6 +40,8 @@ exports.signup = async (userData) => {
 exports.login = async (userData) => {
   const { email, password } = userData
 
+  if (!email || !password) throw createError(400, 'Missing fields')
+
   // Check if user exists
   const user = await User.findOne({ email })
   if (!user) throw createError(404, 'User doesn\'t exist')

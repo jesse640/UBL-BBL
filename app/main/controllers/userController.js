@@ -1,5 +1,6 @@
 const userService = require('../services/userService')
 const User = require('../models/UsersModel')
+const createError = require('http-errors')
 
 exports.signup = async (req, res) => {
   try {
@@ -26,14 +27,13 @@ exports.login = async (req, res) => {
 const getUserFromToken = async (req, res) => {
   try {
     const userId = req.user.userId
-    if (!userId) return res.status(401).json({ message: 'Unauthorised' })
+    if (!userId) throw createError(401, 'Unauthorised')
 
     const user = await User.findById(userId)
 
     return user
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message })
-    return null
   }
 }
 
