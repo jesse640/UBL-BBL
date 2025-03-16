@@ -81,7 +81,7 @@ exports.putInfo = async (userData) => {
 
     if (!isValidPassword(newpassword)) {
       throw createError(
-        400, 
+        400,
         'Password must be at least 8 characters long, include 1 uppercase, ' +
             '1 number, and 1 special character.'
       )

@@ -6,7 +6,7 @@ exports.signup = async (req, res) => {
     const user = await userService.signup(req.body)
     res.status(201).json({ message: 'Signup successful', user })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -18,7 +18,7 @@ exports.login = async (req, res) => {
     })
     res.status(200).json({ message: 'Login successful' })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -32,7 +32,7 @@ const getUserFromToken = async (req, res) => {
 
     return user
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
     return null
   }
 }
@@ -48,7 +48,7 @@ exports.getInfo = async (req, res) => {
       businesses: user.businesses || null
     })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -63,7 +63,7 @@ exports.putInfo = async (req, res) => {
     })
     res.status(200).json({ message: 'Successfully updated user info' })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -77,6 +77,6 @@ exports.postSignOut = async (req, res) => {
     })
     res.status(200).json({ message: 'Logged out' })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
