@@ -7,7 +7,7 @@ const createError = require('http-errors')
 exports.signup = async (userData) => {
   const { username, email, password } = userData
 
-  // Check for missing fields
+  // Check for missing fields//
   if (!username || !email || !password) throw createError(400, 'Missing fields')
 
   // check if email is valid
