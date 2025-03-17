@@ -1,6 +1,6 @@
 const request = require('supertest')
-const { app, server } = require('../../main/server')
-const User = require('../../main/models/UsersModel')
+const { app, server } = require('../../api/server')
+const User = require('../../api/models/UsersModel')
 const mongoose = require('mongoose') // Import mongoose for DB teardown
 server.close()
 

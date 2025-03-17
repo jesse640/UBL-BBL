@@ -21,6 +21,10 @@ app.use(cookieParser())
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
+app.get('/', (req, res) => {
+  res.send('welcome to ubl-bbl invoice creation/validation project!')
+})
+
 app.use('/testing', testRoutes)
 
 app.use('/user', userRoutes)

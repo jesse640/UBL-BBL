@@ -1,5 +1,5 @@
 const request = require('supertest')
-const { app, server } = require('../main/server')
+const { app, server } = require('../api/server')
 const mongoose = require('mongoose')
 
 describe('GET /testing/:number (simple addition test)', () => {

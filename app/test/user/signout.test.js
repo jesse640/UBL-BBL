@@ -1,14 +1,11 @@
 const request = require('supertest')
-const { app, server } = require('../../main/server')
-const User = require('../../main/models/UsersModel')
+const { app, server } = require('../../api/server')
+const User = require('../../api/models/UsersModel')
 const mongoose = require('mongoose')
 server.close()
 
 describe('POST /user/signout', () => {
-  let userId
-
   afterAll(async () => {
-    await User.findByIdAndDelete(userId)
     await mongoose.connection.close()
     server.close()
   })
@@ -48,6 +45,6 @@ describe('POST /user/signout', () => {
     expect(response.body.message).toBe('Logged out')
     expect(response.headers['set-cookie'][0]).toMatch(/token=none/)
 
-    userId = signInResoinse.body.user._id
+    await User.findOneAndDelete({ username: newUser.username })
   })
 })
