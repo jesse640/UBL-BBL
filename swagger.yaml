@@ -4,6 +4,71 @@ info:
   description: API for system that users can create and validate invoices
   version: 1.0.0
 
+components:
+  schemas:
+    client:
+      type: object
+      properties:
+        name:
+          type: string
+    business:
+      type: object
+      properties:
+        busBsb:
+          type: string
+          nullable: true
+          description: "bsb number"
+        busAccNo:
+          type: string
+          nullable: true
+          description: "Bank account number"
+        busAccName:
+          type: string
+          nullable: true
+          description: "Account name"
+        busReference:
+          type: string
+          nullable: true
+          description: "Payment reference"
+        busBpay:
+          type: string
+          nullable: true
+          description: "BPAY"
+        busName:
+          type: string
+          description: "Business name"
+        busAbn:
+          type: string
+          nullable: true
+          description: "Australian Business Number (ABN)"
+      required:
+        - busName
+    invoice:
+      type: object
+      properties:
+        invoiceNo:
+          type: string
+        date:
+          type: string
+          format: date-time
+        productDetails:
+          type: string
+        productFee:
+          type: number
+        productGst:
+          type: number
+        productTotal:
+          type: number
+        business:
+          $ref: "#/components/schemas/business"
+          nullable: true
+        client:
+          $ref: "#/components/schemas/client"
+          nullable: true
+
+        
+
+
 paths:
   /users/signup:
     post:
@@ -19,26 +84,25 @@ paths:
               properties:
                 username:
                   type: string
-                password:
-                  type: string
                 email:
+                  type: string
+                password:
                   type: string
       responses:
         '200':
-          description: Registration successful
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
+          description: 'Signup successful'
         '400':
-          description: Invalid email/password format or username/email unavailable
+          description: |
+            Invalid email
+            Invalid password 
+              - Minimum length of 8 characters, at least one uppercase, one number, and one special character
+            username/email unavailable
+            Missing fields
+
 
   /users/login:
     post:
-      summary: Logs a user in !!PROBABLY LEAVE OUT TWO FACTOR AUT!!
+      summary: Logs a user in
       tags:
         - Users
       requestBody:
@@ -48,11 +112,9 @@ paths:
             schema:
               type: object
               properties:
-                username:
+                email:
                   type: string
                 password:
-                  type: string
-                twoFactorCode:
                   type: string
       responses:
         '200':
@@ -65,10 +127,14 @@ paths:
                   token:
                     type: string
         '400':
-          description: Invalid username/password/2FA code
+          description: |
+            Incorrect password 
+            Missing fields
+        '404':
+          description: User doesn't exist
 
 
-  /users/logout:
+  /users/signout:
     post:
       summary: Logs a user out
       tags:
@@ -81,13 +147,13 @@ paths:
             type: string
       responses:
         '200':
-          description: Logout successful
+          description: Logged out
         '401':
-          description: Invalid token
+          description: Unauthorised
 
   /users/info:
     get:
-      summary: Gets user info !!MAYBE REMOVE INVOICE KEY!!
+      summary: Gets user info 
       tags:
         - Users
       parameters:
@@ -108,16 +174,64 @@ paths:
                     type: string
                   email:
                     type: string
-                  invoices:
+                  businesses:
                     type: array
                     items:
-                      type: object
+                      $ref: "#/components/schemas/business"
         '401':
-          description: Invalid token
+          description: Unauthorised
+    put:
+      summary: Updates user info
+      tags:
+        - Users
+      parameters:
+        - name: token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+              anyOf:
+                - required: [username]
+                - required: [email]
+                - required: [password]
+      responses:
+        '200':
+          description: Successfully updated user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: |
+            - No user info changed
+            - Username already exists
+            - Email is already being used
+            - New username/email/password should not be current username/email/password
+            - Invalid email/password
+        '401':
+          description: Unauthorised
+        '404':
+          description: User doesn't exist
 
   /invoices:
     post:
-      summary: Creates an invoice !!DECIDE BUYERDEETS AND PRODUCTDEETS SCHEMA!!
+      summary: Creates an invoice 
       tags:
         - Invoices
       parameters:
@@ -132,17 +246,7 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
-                invoiceNumber:
-                  type: string
-                date:
-                  type: string
-                buyerDetails:
-                  type: object
-                productDetails:
-                  type: object
-                totalCost:
-                  type: number
+              $ref: "#/components/schemas/invoice"     
       responses:
         '200':
           description: Invoice created
@@ -173,18 +277,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    invoiceNumber:
-                      type: string
-                    date:
-                      type: string
-                    buyerDetails:
-                      type: object
-                    productDetails:
-                      type: object
-                    totalCost:
-                      type: number
+                  $ref: "#/components/schemas/invoice"  
         '401':
           description: Invalid token
 
@@ -246,25 +339,14 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  invoiceNumber:
-                    type: string
-                  date:
-                    type: string
-                  buyerDetails:
-                    type: object
-                  productDetails:
-                    type: object
-                  totalCost:
-                    type: number
+                $ref: "#/components/schemas/invoice"  
         '401':
           description: Invalid token
         '400':
           description: Invalid invoiceId
 
     put:
-      summary: Edits an invoice !!MAYBE REMOVE INVOICE NUMBER AND DATE!!
+      summary: Edits an invoice 
       tags:
         - Invoices
       parameters:
@@ -283,18 +365,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                invoiceNumber:
-                  type: string
-                date:
-                  type: string
-                buyerDetails:
-                  type: object
-                productDetails:
-                  type: object
-                totalCost:
-                  type: number
+              $ref: "#/components/schemas/invoice"
       responses:
         '200':
           description: Invoice updated

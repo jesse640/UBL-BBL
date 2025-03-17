@@ -7,6 +7,7 @@
     "dev": "nodemon app/api/server.js",
     "start": "node app/api/server.js",
     "test": "jest --runInBand",
+    "coverage": "jest --runInBand --coverage",
     "lint": "standard --env jest"
   },
   "keywords": [],
@@ -17,6 +18,7 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.14.2",
     "mongoose": "^8.12.1",

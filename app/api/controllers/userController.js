@@ -1,12 +1,13 @@
 const userService = require('../services/userService')
 const User = require('../models/UsersModel')
+const createError = require('http-errors')
 
 exports.signup = async (req, res) => {
   try {
     const user = await userService.signup(req.body)
     res.status(201).json({ message: 'Signup successful', user })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -18,7 +19,7 @@ exports.login = async (req, res) => {
     })
     res.status(200).json({ message: 'Login successful' })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -26,14 +27,13 @@ exports.login = async (req, res) => {
 const getUserFromToken = async (req, res) => {
   try {
     const userId = req.user.userId
-    if (!userId) return res.status(401).json({ message: 'Unauthorised' })
+    if (!userId) throw createError(401, 'Unauthorised')
 
     const user = await User.findById(userId)
 
     return user
   } catch (error) {
-    res.status(400).json({ error: error.message })
-    return null
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -48,7 +48,7 @@ exports.getInfo = async (req, res) => {
       businesses: user.businesses || null
     })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -63,7 +63,7 @@ exports.putInfo = async (req, res) => {
     })
     res.status(200).json({ message: 'Successfully updated user info' })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
 
@@ -77,6 +77,6 @@ exports.postSignOut = async (req, res) => {
     })
     res.status(200).json({ message: 'Logged out' })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(error.status || 500).json({ error: error.message })
   }
 }
