@@ -17,7 +17,7 @@ describe('POST /user/signout', () => {
       password: 'Password123*'
     }
 
-    const signInResoinse = await request(app)
+    await request(app)
       .post('/user/signup')
       .send(newUser)
       .expect(201)
