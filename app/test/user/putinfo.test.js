@@ -158,5 +158,6 @@ describe('PUT /user/info', () => {
     expect(response13.body.message).toBe('No token provided')
 
     await User.findByIdAndDelete(userId)
+    await User.findByIdAndDelete(userId2)
   })
 })

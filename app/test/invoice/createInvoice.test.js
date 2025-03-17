@@ -67,6 +67,9 @@ describe('POST /invoices', () => {
     expect(response3.body.message).toBe('Invoice created')
 
     await User.findOneAndDelete({ username: newUser.username })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice.invoiceNo })
+    await Business.findOneAndDelete({ busName: business.busName })
+    await Client.findOneAndDelete({ recepientName: client.recepientName })
   })
 
   it('should return an error when the product fees are not numbers', async () => {
@@ -121,6 +124,11 @@ describe('POST /invoices', () => {
       .expect(400)
 
     expect(response3.body.error).toBe('Product fees must be numbers')
+
+    await User.findOneAndDelete({ username: newUser.username })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice.invoiceNo })
+    await Business.findOneAndDelete({ busName: business.busName })
+    await Client.findOneAndDelete({ recepientName: client.recepientName })
   })
 
   it('should return an error when not all fields are filled out', async () => {
@@ -151,10 +159,7 @@ describe('POST /invoices', () => {
 
     expect(response2.body.message).toBe('Login successful')
 
-    // const clientId = new mongoose.Types.ObjectId("aaaaaaaaaaaaaaaaaaaaaaaa");
     const client = { recepientName: 'Name' }
-
-    // const businessId = new mongoose.Types.ObjectId("aaaaaaaaaaaaaaaaaaaaaaab");
     const business = { busName: 'Name' }
 
     const newInvoice = {
@@ -177,6 +182,11 @@ describe('POST /invoices', () => {
       .expect(400)
 
     expect(response3.body.error).toBe('Invoice has missing fields')
+
+    await User.findOneAndDelete({ username: newUser.username })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice.invoiceNo })
+    await Business.findOneAndDelete({ busName: business.busName })
+    await Client.findOneAndDelete({ recepientName: client.recepientName })
   })
 
   // it('should return an error if the token is invalid', async () => {

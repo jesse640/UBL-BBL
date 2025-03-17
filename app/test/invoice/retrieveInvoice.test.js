@@ -97,6 +97,11 @@ describe('GET /invoices/:invoiceId', () => {
     }
 
     expect(JSON.stringify(response4Result)).toBe(JSON.stringify(expectedResult))
+
+    await User.findOneAndDelete({ username: newUser.username })
+    await Invoice.findOneAndDelete({ invoiceNo: newInvoice.invoiceNo })
+    await Business.findOneAndDelete({ busName: business.busName })
+    await Client.findOneAndDelete({ recepientName: client.recepientName })
   })
 })
 
