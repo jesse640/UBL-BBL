@@ -114,7 +114,32 @@ exports.searchInvoices = async (input) => {
   }
 }
 
-exports.validateInvoice = async () => {}
+exports.validateInvoice = async (invoice) => {
+  const invoiceExists = await Invoice.findOne({ invoiceNo: invoice.invoiceNo })
+  if (!invoiceExists) {
+    throw new Error('Invoice does not exist')
+  } else if (!numericFieldsAreGreaterThanZero(invoice)) {
+    throw new Error('All numeric fields must be >= 0')
+  } else {
+    console.log(invoiceExists)
+  }
+}
+
+function numericFieldsAreGreaterThanZero (invoice) {
+  const fields = [
+    'productFee',
+    'productGst',
+    'productTotal'
+  ]
+
+  for (const key in fields) {
+    if (parseInt(invoice[key]) <= 0) {
+      return false
+    }
+  }
+
+  return true
+}
 
 function invoiceHasMissingFields (invoice) {
   const requiredFields = [

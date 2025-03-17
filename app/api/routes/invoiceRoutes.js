@@ -10,5 +10,6 @@ router.delete('/:invoiceId', invoiceController.delete)
 router.post('/:invoiceId', invoiceController.send)
 router.get('/:invoiceId', invoiceController.retrieve)
 router.get('/search/:input', invoiceController.search)
+router.get('/validate', invoiceController.validate)
 
 module.exports = router
