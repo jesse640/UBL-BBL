@@ -7,7 +7,7 @@ const Client = require('../../api/models/ClientModel')
 const mongoose = require('mongoose') // Import mongoose for DB teardown
 server.close()
 
-describe('POST /invoices/:invoiceId', () => {
+describe('GET /invoices/search', () => {
   afterAll(async () => {
     await mongoose.connection.close() // Ensure DB connection is closed
     server.close()

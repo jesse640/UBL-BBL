@@ -56,6 +56,16 @@ exports.retrieve = async (req, res) => {
   }
 }
 
+exports.validate = async (req, res) => {
+  try {
+    console.log(req.body)
+    await invoiceService.validateInvoice(req.body)
+    res.status(200).json({ message: 'Invoice is valid' })
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
 exports.search = async (req, res) => {
   try {
     const results = await invoiceService.searchInvoices(req.params.input)
