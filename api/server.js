@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser')
 
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
-const swaggerDocument = YAML.load('./swagger.yaml')
+const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
 
 const testRoutes = require('./routes/testRoutes')
 const userRoutes = require('./routes/userRoutes')
