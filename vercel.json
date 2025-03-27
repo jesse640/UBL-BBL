@@ -15,8 +15,5 @@
       "src": "/(.*)",
       "dest": "/api/server.js"
     }
-  ],
-  "files": [
-    "swagger.yaml"
   ]
 }
