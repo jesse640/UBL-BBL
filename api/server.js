@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 
 app.use('/testing', testRoutes)
 
-app.use('/user', userRoutes)
+app.use('/users', userRoutes)
 
 app.use('/invoice', invoiceRoutes)
 
