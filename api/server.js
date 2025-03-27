@@ -19,15 +19,15 @@ app.use(express.json())
 
 app.use(cookieParser())
 
-// Dynamically load swagger document
-const swaggerDocument = YAML.load(
-  path.join(
-    process.env.NODE_ENV === 'production' 
-      ? '/vercel/path0' 
-      : path.join(__dirname, '..'), 
-    'swagger.yaml'
-  )
-);
+let swaggerDocument;
+try {
+  swaggerDocument = YAML.load(
+    path.join(__dirname, '..', 'swagger.yaml')
+  );
+} catch (error) {
+  console.error('Error loading Swagger document:', error);
+  swaggerDocument = {}; // Fallback to empty config
+}
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
