@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser')
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
 const path = require('path');
-const swaggerDocument = YAML.load(path.join(__dirname, '..', 'swagger.yaml'));
 
 const testRoutes = require('./routes/testRoutes')
 const userRoutes = require('./routes/userRoutes')
@@ -19,6 +18,16 @@ const app = express()
 app.use(express.json())
 
 app.use(cookieParser())
+
+// Dynamically load swagger document
+const swaggerDocument = YAML.load(
+  path.join(
+    process.env.NODE_ENV === 'production' 
+      ? '/vercel/path0' 
+      : path.join(__dirname, '..'), 
+    'swagger.yaml'
+  )
+);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
