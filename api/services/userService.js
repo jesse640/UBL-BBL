@@ -32,7 +32,7 @@ exports.signup = async (userData) => {
 
   // Create new user
   const user = await User.create({ username, email, password: hashedPassword })
-  return user
+  return { username, email }
 }
 
 exports.login = async (userData) => {
