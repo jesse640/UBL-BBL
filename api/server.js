@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser')
 
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
-const path = require('path');
+const path = require('path')
 
 const testRoutes = require('./routes/testRoutes')
 const userRoutes = require('./routes/userRoutes')
@@ -19,16 +19,7 @@ app.use(express.json())
 
 app.use(cookieParser())
 
-let swaggerDocument;
-try {
-  swaggerDocument = YAML.load(
-    path.join(__dirname, '..', 'swagger.yaml')
-  );
-} catch (error) {
-  console.error('Error loading Swagger document:', error);
-  swaggerDocument = {}; // Fallback to empty config
-}
-
+const swaggerDocument = YAML.load(path.join(__dirname, '../swagger.yaml'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.get('/', (req, res) => {
