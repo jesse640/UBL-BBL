@@ -229,6 +229,191 @@ paths:
         '404':
           description: User doesn't exist
 
+  /invoiceV2/parseOrder2json:
+    post:
+      summary: Converts order XML to JSON
+      tags:
+        - invoiceV2
+      description: Parses the given XML string for an order and returns a structured JSON response with details like order ID, issue date, start and end dates, supplier, customer, currency, total amount, and items.
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+              description: Order XML document to be parsed.
+      responses:
+        200:
+          description: Successfully converted XML to JSON
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The unique order identifier.
+                    example: "AEG012345"
+                  issueDate:
+                    type: string
+                    format: date
+                    description: The date the order was issued.
+                    example: "2005-06-20"
+                  startDate:
+                    type: string
+                    format: date
+                    description: The start date for the order delivery period.
+                    example: "2005-06-29"
+                  endDate:
+                    type: string
+                    format: date
+                    description: The end date for the order delivery period.
+                    example: "2005-06-29"
+                  supplier:
+                    type: string
+                    description: The name of the supplier.
+                    example: "Consortial"
+                  customer:
+                    type: string
+                    description: The name of the customer.
+                    example: "IYT Corporation"
+                  currency:
+                    type: string
+                    description: The currency in which the total amount is denominated.
+                    example: "GBP"
+                  totalAmount:
+                    type: string
+                    description: The total payable amount for the order.
+                    example: "100.00"
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        description:
+                          type: string
+                          description: A description of the item in the order.
+                          example: "Acme beeswax"
+                        amount:
+                          type: string
+                          description: The total amount for the item.
+                          example: "100.00"
+        400:
+          description: Invalid XML format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message when the XML format is invalid.
+                    example: "Invalid XML format"
+
+  /invoiceV2/create:
+    post:
+      summary: Create an Invoice
+      tags: 
+        - invoiceV2
+      description: Generates a UBL invoice XML from json invoice data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "12345"
+                issueDate:
+                  type: string
+                  format: date
+                  example: "2025-04-01"
+                startDate:
+                  type: string
+                  format: date
+                  example: "2025-03-01"
+                endDate:
+                  type: string
+                  format: date
+                  example: "2025-03-31"
+                supplier:
+                  type: string
+                  example: "Custom Cotter Pins"
+                customer:
+                  type: string
+                  example: "North American Veeblefetzer"
+                totalAmount:
+                  type: number
+                  example: 100.00
+                currency:
+                  type: string
+                  example: "CAD"
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                        example: "Cotter pin, MIL-SPEC"
+                      amount:
+                        type: number
+                        example: 100.00
+      responses:
+        "200":
+          description: Successfully generated invoice XML
+          content:
+            application/xml:
+              schema:
+                type: string
+        "400":
+          description: Missing required invoice fields
+        "500":
+          description: Failed to generate invoice XML
+  
+  /invoiceV2/validate:
+    post:
+      summary: Validate an Invoice
+      tags: 
+        - invoiceV2
+      description: Validates a invoice XML against UBL-Invoice-2.1 schema
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: Invoice is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  message:
+                    type: string
+        "400":
+          description: Invalid XML or validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  messages:
+                    type: array
+                    items:
+                      type: string
+        "500":
+          description: Server error
+
+
   /invoices:
     post:
       summary: Creates an invoice 
