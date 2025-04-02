@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const validator = require('xsd-schema-validator')
+// const validator = require('xsd-schema-validator')
 const path = require('path')
 const { create } = require('xmlbuilder2') // XML builder
 const xml2js = require('xml2js')
@@ -104,24 +104,26 @@ router.post('/create', (req, res) => {
   }
 })
 
+// uncomment when xsd-schema-validator is accepted by vercel
+
 // validation with UBL-Invoice-2.1.xsd
-router.post('/validate', async (req, res) => {
-  const invoiceXml = req.body
+// router.post('/validate', async (req, res) => {
+//   const invoiceXml = req.body
 
-  if (!invoiceXml) {
-    return res.status(400).json({ error: 'No XML data received' })
-  }
+//   if (!invoiceXml) {
+//     return res.status(400).json({ error: 'No XML data received' })
+//   }
 
-  try {
-    // validate UBL-invoice-2.1.xsd
-    const xsdFilePath = path.join(__dirname, '../validation/UBL-Invoice-2.1.xsd')
-    const result = await validator.validateXML(invoiceXml, xsdFilePath)
+//   try {
+//     // validate UBL-invoice-2.1.xsd
+//     const xsdFilePath = path.join(__dirname, '../validation/UBL-Invoice-2.1.xsd')
+//     const result = await validator.validateXML(invoiceXml, xsdFilePath)
 
-    res.status(200).json({ valid: result.valid, message: 'invoice is valid' })
-  } catch (error) {
-    res.status(400).json({ valid: error.valid, messages: error.messages })
-  }
-})
+//     res.status(200).json({ valid: result.valid, message: 'invoice is valid' })
+//   } catch (error) {
+//     res.status(400).json({ valid: error.valid, messages: error.messages })
+//   }
+// })
 
 module.exports = router
 
