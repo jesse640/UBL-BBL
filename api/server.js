@@ -9,6 +9,7 @@ const path = require('path')
 const testRoutes = require('./routes/testRoutes')
 const userRoutes = require('./routes/userRoutes')
 const invoiceRoutes = require('./routes/invoiceRoutes')
+const invoiceRoutesV2 = require('./routes/invoiceRoutesV2')
 
 const PORT = 3000
 
@@ -19,11 +20,15 @@ app.use(express.json())
 
 app.use(cookieParser())
 
-const swaggerDocument = YAML.load(path.join(__dirname, './swagger.yaml'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+// Load the YAML file
+const swaggerDoc = YAML.load(path.join(__dirname, './swagger.yaml'))
+
+// Set up Swagger UI route
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
 
 app.get('/', (req, res) => {
-  res.send('welcome to ubl-bbl invoice creation/validation project!')
+  res.send(`welcome to ubl-bbl invoice creation/validation project!
+    go to /docs to access swagger documentation`)
 })
 
 app.use('/testing', testRoutes)
@@ -32,6 +37,8 @@ app.use('/users', userRoutes)
 
 app.use('/invoice', invoiceRoutes)
 
+app.use('/invoiceV2', invoiceRoutesV2)
+
 mongoose.connect('mongodb+srv://admin:12345abcde@invoicedatabase.owzuo.mongodb.net/?retryWrites=true&w=majority&appName=InvoiceDataBase')
   .then(() => {
     console.log('Connected to DB')
@@ -39,7 +46,7 @@ mongoose.connect('mongodb+srv://admin:12345abcde@invoicedatabase.owzuo.mongodb.n
     console.log(error)
   })
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)
 })
 

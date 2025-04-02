@@ -31,7 +31,7 @@ exports.signup = async (userData) => {
   const hashedPassword = await bcrypt.hash(password, 10)
 
   // Create new user
-  const user = await User.create({ username, email, password: hashedPassword })
+  await User.create({ username, email, password: hashedPassword })
   return { username, email }
 }
 
