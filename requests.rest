@@ -228,7 +228,7 @@ Content-Type: application/json
 
 ### 
 
-POST http://localhost:3000/invoiceV2/validate1
+POST http://localhost:3000/invoiceV2/validate
 Content-Type: application/xml
 
 <?xml version="1.0" encoding="UTF-8"?>
