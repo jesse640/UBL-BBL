@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
+// have to reinstall npm install xsd-schema-validator
 // const validator = require('xsd-schema-validator')
 const path = require('path')
 const { create } = require('xmlbuilder2') // XML builder
@@ -104,7 +105,7 @@ router.post('/create', (req, res) => {
   }
 })
 
-// uncomment when xsd-schema-validator is accepted by vercel
+// uncomment when xsd-schema-validator is accepted by railway
 
 // validation with UBL-Invoice-2.1.xsd
 // router.post('/validate', async (req, res) => {
