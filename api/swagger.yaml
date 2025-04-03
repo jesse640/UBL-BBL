@@ -373,7 +373,7 @@ paths:
         "500":
           description: Failed to generate invoice XML
   
-  /invoiceV2/validate:
+  /invoiceV2/validate/UBL-Invoice-2.1:
     post:
       summary: Validate an Invoice
       tags: 
@@ -412,6 +412,68 @@ paths:
                       type: string
         "500":
           description: Server error
+
+  /invoiceV2/validate/A-NZ-PEPPOL:
+    post:
+      summary: Validate A-NZ PEPPOL invoice XML
+      description: Validates an A-NZ PEPPOL invoice XML against both the AUNZ-UBL-validation and AUNZ-PEPPOL-validation Schematron rules
+      tags:
+        - invoiceV2
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+              description: XML content of the PEPPOL invoice to validate
+            example: |
+              <?xml version="1.0" encoding="UTF-8"?>
+              <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+                <!-- PEPPOL invoice content -->
+              </Invoice>
+      responses:
+        '200':
+          description: Invoice is valid against both UBL and PEPPOL validation rules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: valid AUNZ PEPPOL
+        '400':
+          description: Invoice is invalid against UBL or PEPPOL validation rules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: invalid AUNZ PEPPOL
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    description: List of validation error messages extracted from both UBL and PEPPOL Schematron outputs
+                    example:
+                      - "UBL-CR-001: A UBL invoice should not include the AccountingCustomerParty/Party/PhysicalLocation"
+                      - "PEPPOL-EN16931-R020: Tax accounting basis (BT-6) is mandatory"
+        '500':
+          description: Server error or XML parsing error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: invalid xml
+                  error:
+                    type: string
+                    description: Error message details
+                    example: Unable to parse XML document
 
 
   /invoices:
