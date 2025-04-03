@@ -11,8 +11,6 @@ const userRoutes = require('./routes/userRoutes')
 const invoiceRoutes = require('./routes/invoiceRoutes')
 const invoiceRoutesV2 = require('./routes/invoiceRoutesV2')
 
-const PORT = 3000
-
 const app = express()
 
 // middleware
@@ -21,7 +19,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 // Swagger setup
-const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
+const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'))
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.get('/', (req, res) => {
@@ -44,10 +42,8 @@ mongoose.connect('mongodb+srv://admin:12345abcde@invoicedatabase.owzuo.mongodb.n
     console.log(error)
   })
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
+app.listen(3000, '0.0.0.0', () => {
+  console.log('Server is running on port 3000')
 })
 
 module.exports = app
-
-// module.exports = server uncomment for testing
