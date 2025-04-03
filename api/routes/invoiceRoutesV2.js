@@ -6,6 +6,11 @@ const path = require('path')
 const { create } = require('xmlbuilder2') // XML builder
 const xml2js = require('xml2js')
 
+const fs = require('fs/promises')
+const util = require('util')
+const { exec } = require('child_process')
+const execPromise = util.promisify(exec)
+
 // middleware
 router.use(express.text({ type: 'application/xml' }))
 
@@ -105,7 +110,7 @@ router.post('/create', (req, res) => {
 })
 
 // validation with UBL-Invoice-2.1.xsd
-router.post('/validate', async (req, res) => {
+router.post('/validate/UBL-Invoice-2.1', async (req, res) => {
   const invoiceXml = req.body
 
   if (!invoiceXml) {
@@ -119,65 +124,40 @@ router.post('/validate', async (req, res) => {
 
     res.status(200).json({ valid: result.valid, message: 'invoice is valid' })
   } catch (error) {
-    res.status(400).json({ valid: error.valid, messages: error.messages })
+    res.status(400).json({ valid: error.valid, errors: error.messages })
+  }
+})
+
+// validation with AUNZ-UBL-validation and AUNZ-PEPPOL-validation
+router.post('/validate/A-NZ-PEPPOL', async (req, res) => {
+  try {
+    const invoiceXml = req.body
+    const invoicefilePath = path.resolve(__dirname, '../tempFiles/invoice.xml')
+    const sefJsonFilePath = path.resolve(__dirname, '../validation/AUNZ-UBL-validation.sef.json')
+    const sefJsonFilePathPeppol = path.resolve(__dirname, '../validation/AUNZ-PEPPOL-validation.sef.json')
+    const outputFilePath = path.resolve(__dirname, '../tempFiles/output.xml')
+
+    await fs.writeFile(invoicefilePath, invoiceXml)
+
+    const command1 = `npx xslt3 -xsl:${sefJsonFilePath} -s:${invoicefilePath} -o:${outputFilePath}`
+    await execPromise(command1)
+    const output1 = await fs.readFile(outputFilePath, 'utf8')
+
+    const command2 = `npx xslt3 -xsl:${sefJsonFilePathPeppol} -s:${invoicefilePath} -o:${outputFilePath}`
+    await execPromise(command2)
+    const output2 = await fs.readFile(outputFilePath, 'utf8')
+    const output = output1 + '\n' + output2
+    const regex = /<svrl:text>(.*?)<\/svrl:text>/gs
+    const matches = [...output.matchAll(regex)].map(match => match[1])
+
+    if (matches.length === 0) {
+      return res.status(200).json({ message: 'valid AUNZ PEPPOL' })
+    }
+
+    return res.status(400).json({ message: 'invalid AUNZ PEPPOL', errors: matches })
+  } catch (error) {
+    return res.status(500).json({ message: 'invalid xml', error: error.message })
   }
 })
 
 module.exports = router
-
-// // validation with AUNZ-UBL-validation.sch
-// router.post('/validate2', async (req, res) => {
-//   const invoiceXml = req.body
-
-//   if (!invoiceXml) {
-//     return res.status(400).json({ error: 'No XML data received' })
-//   }
-
-//   try {
-//     // Load precompiled Schematron XSLT
-//     const xsltFilePath = path.join(__dirname, '../validation/AUNZ-UBL-validation.xslt')
-//     const xsltContent = fs.readFileSync(xsltFilePath, 'utf8')
-
-//     // Compile XSLT to SEF
-//     const sef = SaxonJS.compile({
-//       stylesheetText: xsltContent
-//     })
-
-//     // Save the SEF file
-//     const sefFilePath = path.join(__dirname, '../validation/AUNZ-UBL-validation.sef.json')
-//     fs.writeFileSync(sefFilePath, JSON.stringify(sef))
-
-//     // // Apply the XSLT transformation to validate XML
-//     // const result = SaxonJS.transform({
-//     //     stylesheetText: xsltContent,
-//     //     sourceText: invoiceXml,
-//     //     destination: 'serialized'
-//     // })
-
-//     // Parse validation result
-//     // const errors = parseSchematronOutput(result.principalResult)
-
-//     // if (errors.length === 0) {
-//     //     return res.status(200).json({ valid: true, message: 'Invoice is valid' })
-//     // } else {
-//     //     return res.status(400).json({ valid: false, messages: errors })
-//     // }
-
-//     res.status(200).json({ message: 'invoice is valid' })
-//   } catch (error) {
-//     return res.status(500).json(error)
-//   }
-// })
-
-// // Parses Schematron validation output (adjust as needed)
-// function parseSchematronOutput (outputXml) {
-//   const errors = []
-//   const matches = outputXml.match(/<svrl:failed-assert[^>]*>([\s\S]*?)<\/svrl:failed-assert>/g)
-//   if (matches) {
-//     matches.forEach(match => {
-//       const messageMatch = match.match(/<svrl:text[^>]*>([\s\S]*?)<\/svrl:text>/)
-//       if (messageMatch) errors.push(messageMatch[1].trim())
-//     })
-//   }
-//   return errors
-// }
