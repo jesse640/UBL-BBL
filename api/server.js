@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
-const cors = require('cors');
+const cors = require('cors')
 
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
@@ -20,7 +20,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use(cors({
-  origin: ["http://localhost:5173"],
+  origin: ['http://localhost:5173']
 }))
 
 // Swagger setup
