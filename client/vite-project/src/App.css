@@ -1,107 +1,211 @@
-body {
+@import url('https://fonts.cdnfonts.com/css/kollektif');
+
+* {
+  padding: 0;
   margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #0a0a0a;
-}
-
-.main {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  margin-bottom: 60px;
-}
-
-.app-container {
-  padding: 40px;
-  width: 90%;
-  max-width: 1000px;
-  margin: auto;
-  border: 2px solid #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background: rgb(39, 39, 39);
-}
-
-h1 {
-  text-align: center;
-  color: white;
-}
-
-.input-section, .response-section {
-  margin: 20px 0;
-}
-
-.fixed-textarea {
-  width: 100%;
-  min-width: 100%;
-  max-width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-family: monospace;
-  white-space: pre-wrap;
-  resize: none;
   box-sizing: border-box;
 }
 
-button {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  background-color: #4d95be;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
+body {
+  height: 100vh;
+  background: #d0d0d0;
+  font-family: 'Kollektif', sans-serif;}
 
-button:hover {
-  background-color: #407da0;
-}
-
-h3 {
-  color: #666;
-  margin-bottom: 10px;
-}
-
-.footer {
+.container {
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
+  height: 100%;
+  width: 100vw;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.colour {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  filter: blur(150px)
+}
+
+.colour1 {
+  background: radial-gradient(100vh at 50% 50%, #6fb3c3, transparent);
+  top: -20%;
+  left: 0;
+}
+.colour2 {
+  background: radial-gradient(100vh at 50% 50%, #cfd0d1, transparent);
+  top: 0;
   right: 0;
-  background-color: #2d2d2d;
-  padding: 15px 40px;
+}
+.colour3 {
+  background: radial-gradient(100vh at 50% 50%, #427fad, transparent);
+  top: 0%;
+  left: -20%;
+}
+
+.header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  padding: 20px 40px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid #404040;
+  justify-content: flex-end;
+  z-index: 1;
 }
 
-.team-name {
-  color: #888;
-  font-weight: bold;
-  font-size: 20px;
-}
-
-.footer-links {
-  display: flex;
-  gap: 25px;
-}
-
-.footer-link {
-  color: #888;
-  font-size: 14px;
+.signup-button {
+  background-color: #427fad;
+  color: white;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.footer-link:hover {
-  color: #fff;
-  text-decoration: underline;
+.signup-button:hover {
+  background-color: #2c5b80;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.signup-button:active {
+  transform: translateY(0);
+}
+
+.login-button {
+  background-color: white;
+  color: #427fad;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-right: 10px;
+}
+
+.login-button:hover {
+  background-color: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+.app-container {
+  position: absolute;
+}
+
+.title-container {
+  position: absolute;
+  left: 400px;
+  top: -140px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.main-title {
+  color: white;
+  font-size: 200px;
+  font-weight: 1000px;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  margin-bottom: -40px;
+}
+
+.subtitle {
+  color: white;
+  font-size: 50px;
+  font-weight: 1000px;
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logout-button {
+  background-color: #427fad;
+  color: white;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-left: 10px;
+}
+
+.profile-button {
+  background-color: white;
+  color: #427fad;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.unlocked-button {
+  width: 100%;
+  position: absolute;
+  top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 0;
+}
+
+.header-right-buttons {
+  z-index: 2;
+  position: relative;
+}
+
+.create-order-button,
+.create-invoice-button,
+.validate-invoice-button {
+  background: none;
+  color: white;
+  padding: 8px 24px;
+  font-weight: 500;
+  font-size: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.create-order-button:hover,
+.create-invoice-button:hover,
+.validate-invoice-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.create-order-button:active,
+.create-invoice-button:active,
+.validate-invoice-button:active {
+  transform: translateY(0);
 }

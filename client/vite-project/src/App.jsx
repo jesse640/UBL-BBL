@@ -1,91 +1,68 @@
+import React from 'react';
 import { useState } from 'react'
-import './App.css'
+import './App.css';
+import SignUp from './components/SignUp';
+import Login from './components/Login';
 
-function App () {
+function App() {
   const [inputJson, setInputJson] = useState('')
   const [response, setResponse] = useState('')
+  const [showSignupModel, setShowSignupModel] = useState(false)
+  const [showLoginModel, setShowLoginModel] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const handleCreateInvoice = async () => {
-    try {
-      const jsonData = JSON.parse(inputJson)
-
-      const response = await fetch('http://localhost:3000/invoiceV2/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(jsonData)
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
-      }
-
-      const xmlData = await response.text()
-      setResponse(xmlData)
-    } catch (error) {
-      setResponse(`Error: ${error.message}`)
-    }
+  const handleSuccessfulLogin = () => {
+    setIsLoggedIn(true);
+    setShowLoginModel(false);
   }
 
   return (
-    <div className='main'>
-      <h1>Create Invoice</h1>
-
-      <div className='app-container'>
-        <div className='input-section'>
-          <h3>Input JSON:</h3>
-          <textarea
-            value={inputJson}
-            onChange={(e) => setInputJson(e.target.value)}
-            placeholder={`Example JSON Input: 
-{
-  "id": "12345",
-  "issueDate": "2025-04-01",
-  "startDate": "2025-03-01",
-  "endDate": "2025-03-31",
-  "supplier": "Custom Cotter Pins",
-  "customer": "North American Veeblefetzer",
-  "totalAmount": 100,
-  "currency": "CAD",
-  "items": [
-    {
-      "description": "Cotter pin, MIL-SPEC",
-      "amount": 100
-    }
-  ]
-}`}
-            rows={15}
-            className='fixed-textarea'
-          />
-        </div>
-
-        <button onClick={handleCreateInvoice}>Generate Invoice XML</button>
-
-        <div className='response-section'>
-          <h3>XML Response:</h3>
-          <textarea
-            value={response}
-            readOnly
-            rows={15}
-            className='fixed-textarea'
-            placeholder='XML response will appear here...'
-          />
-        </div>
+    <>
+      <div className="container">
+        <div className="colour colour1"></div>
+        <div className="colour colour2"></div>
+        <div className="colour colour3"></div>
+      </div>
+      <header className="header">
+        {isLoggedIn ? (
+          <>
+            <div className="unlocked-button">
+              <button className="create-order-button">Create Order</button>
+              <button className="create-invoice-button">Create Invoice</button>
+              <button className="validate-invoice-button">Validate Invoice</button>
+            </div>
+            <div className="header-right-buttons">
+              <button className="profile-button">Profile</button>
+              <button className="logout-button" onClick={() => setIsLoggedIn(false)}>Logout</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <button className="login-button" onClick={() => setShowLoginModel(true)}>Login</button>
+            <button className="signup-button" onClick={() => setShowSignupModel(true)}>Signup</button>
+          </>
+        )}
+      </header>
+      <div className="app-container">
+        <main className="main-content">
+          <div className="title-container">
+            <h1 className="main-title">Minvoicing</h1>
+            <p className="subtitle">Making invoices a minimal process.</p>
+          </div>
+        </main>
       </div>
 
-      {/* footer */}
-      <div className='footer'>
-        <span className='team-name'>UBL-BBL</span>
-        <div className='footer-links'>
-          <span className='footer-link'>Privacy Policy</span>
-          <span className='footer-link'>Terms and Conditions</span>
-          <span className='footer-link'>About Us</span>
-        </div>
-      </div>
-    </div>
-  )
+      <SignUp
+        isOpen={showSignupModel} 
+        onClose={() => setShowSignupModel(false)} 
+      />
+      <Login
+        isOpen={showLoginModel}
+        onClose={() => setShowLoginModel(false)}
+        onLoginSuccess={handleSuccessfulLogin}
+      />
+    </>
+  );
 }
 
-export default App
+export default App;
