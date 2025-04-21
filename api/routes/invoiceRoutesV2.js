@@ -1,9 +1,12 @@
 const express = require('express')
 const router = express.Router()
+const tokenController = require('../controllers/tokenAuth')
+const InvoiceV2 = require('../models/InvoiceModelV2')
+// const nodemailer = require('nodemailer')
 
 const validator = require('xsd-schema-validator')
 const path = require('path')
-const { create } = require('xmlbuilder2') // XML builder
+const { create } = require('xmlbuilder2')
 const xml2js = require('xml2js')
 
 const fs = require('fs/promises')
@@ -50,11 +53,16 @@ router.post('/parseOrder2json', (req, res) => {
 })
 
 // creating invoice xml from user inputs
-router.post('/create', (req, res) => {
+router.post('/create', tokenController.tokenAuth, async (req, res) => {
   const invoice = req.body
 
   if (!invoice || !invoice.id || !invoice.issueDate || !invoice.supplier || !invoice.customer || !invoice.totalAmount) {
     return res.status(400).json({ error: 'Missing required invoice fields' })
+  }
+
+  const invoiceExists = await InvoiceV2.findOne({ invoiceId: invoice.id })
+  if (invoiceExists) {
+    return res.status(400).json({ error: 'InvoiceId already in use' })
   }
 
   try {
@@ -93,6 +101,7 @@ router.post('/create', (req, res) => {
     invoice.items.forEach((item, index) => {
       xmlDoc.ele('cac:InvoiceLine')
         .ele('cbc:ID').txt(index + 1).up()
+        .ele('cbc:InvoicedQuantity', { unitCode: 'EA' }).txt(item.quantity).up()
         .ele('cbc:LineExtensionAmount', { currencyID: invoice.currency || 'CAD' }).txt(item.amount).up()
         .ele('cac:Item')
         .ele('cbc:Description').txt(item.description).up()
@@ -102,8 +111,13 @@ router.post('/create', (req, res) => {
 
     const xmlString = xmlDoc.end({ prettyPrint: true }) // Convert to formatted XML string
 
-    res.setHeader('Content-Type', 'application/xml')
-    res.status(200).send(xmlString)
+    await InvoiceV2.create({
+      userId: req.user.userId,
+      invoiceId: invoice.id,
+      invoiceXML: xmlString
+    }) // when creating the invoice here its failing
+
+    res.status(200).json({ message: 'Invoice created' })
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate invoice XML', details: error.message })
   }
@@ -159,5 +173,110 @@ router.post('/validate/A-NZ-PEPPOL', async (req, res) => {
     return res.status(500).json({ message: 'invalid xml', error: error.message })
   }
 })
+
+// gets list of all invoices
+router.get('/list', tokenController.tokenAuth, async (req, res) => {
+  try {
+    const invoiceIds = await InvoiceV2.find(
+      { userId: req.user.userId },
+      'invoiceId'
+    )
+    res.status(200).json(invoiceIds)
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch invoices', details: err.message })
+  }
+})
+
+// gets info for specific invoice
+router.get('/:invoiceId', tokenController.tokenAuth, async (req, res) => {
+  const invoiceId = req.params.invoiceId
+
+  try {
+    const invoice = await InvoiceV2.findOne({
+      invoiceId,
+      userId: req.user.userId
+    })
+
+    if (!invoice) {
+      return res.status(404).json({ error: 'Invoice not found' })
+    }
+
+    res.status(200).json(invoice)
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch invoice', details: err.message })
+  }
+})
+
+// deletes a specific invoice
+router.delete('/:invoiceId', tokenController.tokenAuth, async (req, res) => {
+  const invoiceId = req.params.invoiceId
+
+  try {
+    // Find and delete the invoice, ensuring it belongs to the authenticated user
+    const result = await InvoiceV2.findOneAndDelete({
+      invoiceId,
+      userId: req.user.userId
+    })
+
+    // Check if an invoice was actually deleted
+    if (!result) {
+      return res.status(404).json({ error: 'Invoice not found or unauthorized' })
+    }
+
+    res.status(200).json({ message: `Invoice ${invoiceId} successfully deleted` })
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete invoice', details: err.message })
+  }
+})
+
+// // sends selected invoice to an email
+// router.post('/send', tokenController.tokenAuth, async (req, res) => {
+//   const { email, invoiceId } = req.body
+
+//   if (!email || !invoiceId) {
+//     return res.status(400).json({ error: 'Email and invoiceId are required' })
+//   }
+
+//   try {
+//     // Find invoice by invoiceNo and ensure it belongs to the user
+//     const invoice = await InvoiceV2.findOne({
+//       invoiceNo: invoiceId,
+//       userId: req.user.userId
+//     })
+
+//     if (!invoice) {
+//       return res.status(404).json({ error: 'Invoice not found or unauthorized' })
+//     }
+
+//     // Set up email transport (example using Gmail, use ENV vars in prod)
+//     const transporter = nodemailer.createTransport({
+//       service: 'gmail',
+//       auth: {
+//         user: req.user.email,
+//         pass: 'your-app-password'
+//       }
+//     })
+
+//     // Send the email with the invoice XML as attachment
+//     await transporter.sendMail({
+//       from: '"Your Company" <your.email@gmail.com>',
+//       to: email,
+//       subject: `Invoice ${invoice.invoiceId}`,
+//       text: `Attached is your invoice ${invoice.invoiceId}`,
+//       attachments: [
+//         {
+//           filename: `invoice-${invoice.invoiceId}.xml`,
+//           content: invoice.invoiceXML,
+//           contentType: 'application/xml'
+//         }
+//       ]
+//     })
+
+//     res.status(200).json({ message: `Invoice ${invoice.invoiceNo} sent to ${email}` })
+
+//   } catch (err) {
+//     res.status(500).json({ error: 'Failed to send invoice', details: err.message })
+//   }
+// })
 
 module.exports = router
