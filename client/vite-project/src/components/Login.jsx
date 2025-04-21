@@ -57,7 +57,7 @@ function LoginModel ({ isOpen, onClose, onLoginSuccess }) {
       }
 
       setResponse(JSON.stringify(responseData, null, 2))
-      alert('Login successful!')
+      // alert('Login successful!')
       onLoginSuccess()
     } catch (error) {
       setResponse(`Error: ${error.message}`)

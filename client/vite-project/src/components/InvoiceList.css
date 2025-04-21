@@ -1,0 +1,310 @@
+.dashboard-container {
+  display: flex;
+  height: 100%;
+  padding: 20px;
+  position: relative;
+}
+
+.title, .title2, .title3 {
+  color: #427fad;
+}
+
+.invoices-panel {
+  flex: 1;
+  padding: 20px;
+  background: white;
+  border-radius: 8px 0 0 8px;
+  overflow-y: auto;
+}
+
+.contacts-panel {
+  flex: 1;
+  padding: 20px;
+  background: white;
+  border-radius: 0 8px 8px 0;
+  overflow-y: auto;
+}
+
+.panel-divider {
+  width: 1px;
+  background-color: #e0e0e0;
+  margin: 0 10px;
+}
+
+.invoices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.invoice-item {
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.invoice-item:hover {
+  background-color: #f8f9fa;
+  border-color: #ddd;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.invoice-header h3 {
+  margin: 0;
+  color: #427fad;
+}
+
+.invoice-details {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.status-pending {
+  background-color: #fff7e6;
+  color: #d48806;
+}
+
+.status-paid {
+  background-color: #f6ffed;
+  color: #389e0d;
+}
+
+.contacts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.add-contact-button {
+  padding: 6px 12px;
+  background: #427fad;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.add-contact-button:hover {
+  background: #2c5b80;
+}
+
+.contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.contact-info h4 {
+  margin: 0 0 5px 0;
+}
+
+.contact-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.delete-contact {
+  background: none;
+  border: none;
+  color: #ff4d4f;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.invoice-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+  color: #555;
+}
+
+.invoice-summary h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.invoice-summary p {
+  margin: 0;
+}
+
+.invoice-items {
+  margin-top: 20px;
+}
+
+.items-header, .item-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 15px;
+  padding: 10px 0;
+}
+
+.items-header {
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 10px;
+}
+
+.item-row {
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.delete-invoice {
+  width: 100%;
+  padding: 10px;
+  margin-top: 20px;
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.error-message {
+  color: #ff4d4f;
+  padding: 8px;
+  margin-bottom: 10px;
+  background: #fff1f0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.contact-form-modal {
+  max-width: 500px;
+}
+
+.contact-form-modal .form-group {
+  margin-bottom: 15px;
+}
+
+.contact-form-modal label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #555;
+}
+
+.contact-form-modal input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.contact-form-modal .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.contact-form-modal .cancel-button {
+  padding: 8px 16px;
+  background: #f5f5f5;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.contact-form-modal .submit-button {
+  padding: 8px 16px;
+  background: #427fad;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.contact-form-modal .submit-button:hover {
+  background: #2c5b80;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
