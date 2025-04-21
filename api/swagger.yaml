@@ -233,7 +233,7 @@ paths:
     post:
       summary: Converts order XML to JSON
       tags:
-        - invoiceV2
+        - invoices
       description: Parses the given XML string for an order and returns a structured JSON response with details like order ID, issue date, start and end dates, supplier, customer, currency, total amount, and items.
       requestBody:
         required: true
@@ -314,7 +314,7 @@ paths:
     post:
       summary: Create an Invoice
       tags: 
-        - invoiceV2
+        - invoices
       description: Generates a UBL invoice XML from json invoice data
       requestBody:
         required: true
@@ -355,6 +355,9 @@ paths:
                   items:
                     type: object
                     properties:
+                      quantity:
+                        type: string
+                        example: "1"
                       description:
                         type: string
                         example: "Cotter pin, MIL-SPEC"
@@ -363,11 +366,7 @@ paths:
                         example: 100.00
       responses:
         "200":
-          description: Successfully generated invoice XML
-          content:
-            application/xml:
-              schema:
-                type: string
+          description: Invoice created (xml generated and stored in db)
         "400":
           description: Missing required invoice fields
         "500":
@@ -377,7 +376,7 @@ paths:
     post:
       summary: Validate an Invoice
       tags: 
-        - invoiceV2
+        - validation
       description: Validates a invoice XML against UBL-Invoice-2.1 schema
       requestBody:
         required: true
@@ -418,7 +417,7 @@ paths:
       summary: Validate A-NZ PEPPOL invoice XML
       description: Validates an A-NZ PEPPOL invoice XML against both the AUNZ-UBL-validation and AUNZ-PEPPOL-validation Schematron rules
       tags:
-        - invoiceV2
+        - validation
       requestBody:
         required: true
         content:
@@ -474,230 +473,407 @@ paths:
                     type: string
                     description: Error message details
                     example: Unable to parse XML document
-
-
-  /invoices:
-    post:
-      summary: Creates an invoice 
+                  
+  /invoiceV2/list:
+    get:
+      summary: Get list of all invoices
+      description: Returns a list of all invoices for the authenticated user
       tags:
-        - Invoices
+        - invoices
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of invoices retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    invoiceId:
+                      type: string
+                      example: "INV-2023-001"
+        '401':
+          description: Unauthorized, token missing or invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized access"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to fetch invoices"
+                  details:
+                    type: string
+                    example: "Database connection error"
+
+  /invoiceV2/{invoiceId}:
+    get:
+      summary: Get info for specific invoice
+      description: Returns detailed information for a specific invoice
+      tags:
+        - invoices
+      security:
+        - bearerAuth: []
       parameters:
-        - name: token
-          in: header
+        - in: path
+          name: invoiceId
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              $ref: "#/components/schemas/invoice"     
+          description: ID of the invoice to retrieve
+          example: "INV-2023-001"
       responses:
         '200':
-          description: Invoice created
+          description: Invoice details retrieved successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   invoiceId:
-                    type: integer
+                    type: string
+                    example: "INV-2023-001"
+                  userId:
+                    type: string
+                    example: "user123"
+                  xmlString:
+                    type: string
+                    description: The complete XML content of the invoice
+                    example: |
+                      <?xml version="1.0" encoding="UTF-8"?>
+                      <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+                        <!-- Invoice XML content -->
+                      </Invoice>
         '401':
-          description: Invalid token
-    get:
-      summary: Gets a list of all user’s invoice details
-      tags:
-        - Invoices
-      parameters:
-        - name: token
-          in: header
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of invoices retrieved
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/invoice"  
-        '401':
-          description: Invalid token
-
-  /invoices/{invoiceId}:
-    post:
-      summary: Sends an invoice
-      tags:
-        - Invoices
-      parameters:
-        - name: token
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: invoiceId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                email:
-                  type: string
-                message:
-                  type: string
-      responses:
-        '200':
-          description: Invoice sent
-        '401':
-          description: Invalid token
-        '400':
-          description: Invalid invoiceId
-          
-    get:
-      summary: Retrieves an invoice
-      tags:
-        - Invoices
-      parameters:
-        - name: token
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: invoiceId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of invoices retrieved
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/invoice"  
-        '401':
-          description: Invalid token
-        '400':
-          description: Invalid invoiceId
-
-    put:
-      summary: Edits an invoice 
-      tags:
-        - Invoices
-      parameters:
-        - name: token
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: invoiceId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/invoice"
-      responses:
-        '200':
-          description: Invoice updated
-        '401':
-          description: Invalid token
-        '400':
-          description: Invalid invoiceId
-
-    delete:
-      summary: Deletes an invoice
-      tags:
-        - Invoices
-      parameters:
-        - name: token
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: invoiceId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Invoice deleted
-        '401':
-          description: Invalid token
-        '400':
-          description: Invalid invoiceId
-
-  /invoices/{invoiceId}/validate:
-    get:
-      summary: Validates an invoice
-      tags:
-        - Invoices
-      parameters:
-        - name: token
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: invoiceId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of invoices retrieved
+          description: Unauthorized, token missing or invalid
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  validationResults:
-                    type: boolean
-        '401':
-          description: Invalid token
-        '400':
-          description: Invalid invoiceId
-
-  /invoices/{invoiceId}/download:
-    post:
-      summary: Downloads an invoice
+                  error:
+                    type: string
+                    example: "Unauthorized access"
+        '404':
+          description: Invoice not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invoice not found"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to fetch invoice"
+                  details:
+                    type: string
+                    example: "Database query error"
+                    
+    delete:
+      summary: Delete a specific invoice
+      description: Deletes a specific invoice belonging to the authenticated user
       tags:
-        - Invoices
+        - invoices
+      security:
+        - bearerAuth: []
       parameters:
-        - name: token
-          in: header
+        - in: path
+          name: invoiceId
           required: true
           schema:
             type: string
-        - name: invoiceId
-          in: path
-          required: true
-          schema:
-            type: integer
+          description: ID of the invoice to delete
+          example: "INV-2023-001"
       responses:
         '200':
-          description: Invoice downloaded
+          description: Invoice successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invoice INV-2023-001 successfully deleted"
         '401':
-          description: Invalid token
-        '400':
-          description: Invalid invoiceId
+          description: Unauthorized, token missing or invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized access"
+        '404':
+          description: Invoice not found or unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invoice not found or unauthorized"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to delete invoice"
+                  details:
+                    type: string
+                    example: "Database operation failed"
+
+
+  # /invoices:
+  #   post:
+  #     summary: Creates an invoice 
+  #     tags:
+  #       - Invoices
+  #     parameters:
+  #       - name: token
+  #         in: header
+  #         required: true
+  #         schema:
+  #           type: string
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             $ref: "#/components/schemas/invoice"     
+  #     responses:
+  #       '200':
+  #         description: Invoice created
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 invoiceId:
+  #                   type: integer
+  #       '401':
+  #         description: Invalid token
+  #   get:
+  #     summary: Gets a list of all user’s invoice details
+  #     tags:
+  #       - Invoices
+  #     parameters:
+  #       - name: token
+  #         in: header
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       '200':
+  #         description: List of invoices retrieved
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 $ref: "#/components/schemas/invoice"  
+  #       '401':
+  #         description: Invalid token
+
+  # /invoices/{invoiceId}:
+  #   post:
+  #     summary: Sends an invoice
+  #     tags:
+  #       - Invoices
+  #     parameters:
+  #       - name: token
+  #         in: header
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: invoiceId
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: integer
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               title:
+  #                 type: string
+  #               email:
+  #                 type: string
+  #               message:
+  #                 type: string
+  #     responses:
+  #       '200':
+  #         description: Invoice sent
+  #       '401':
+  #         description: Invalid token
+  #       '400':
+  #         description: Invalid invoiceId
+          
+  #   get:
+  #     summary: Retrieves an invoice
+  #     tags:
+  #       - Invoices
+  #     parameters:
+  #       - name: token
+  #         in: header
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: invoiceId
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       '200':
+  #         description: List of invoices retrieved
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/invoice"  
+  #       '401':
+  #         description: Invalid token
+  #       '400':
+  #         description: Invalid invoiceId
+
+  #   put:
+  #     summary: Edits an invoice 
+  #     tags:
+  #       - Invoices
+  #     parameters:
+  #       - name: token
+  #         in: header
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: invoiceId
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: integer
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: "#/components/schemas/invoice"
+  #     responses:
+  #       '200':
+  #         description: Invoice updated
+  #       '401':
+  #         description: Invalid token
+  #       '400':
+  #         description: Invalid invoiceId
+
+  #   delete:
+  #     summary: Deletes an invoice
+  #     tags:
+  #       - Invoices
+  #     parameters:
+  #       - name: token
+  #         in: header
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: invoiceId
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       '200':
+  #         description: Invoice deleted
+  #       '401':
+  #         description: Invalid token
+  #       '400':
+  #         description: Invalid invoiceId
+
+  # /invoices/{invoiceId}/validate:
+  #   get:
+  #     summary: Validates an invoice
+  #     tags:
+  #       - Invoices
+  #     parameters:
+  #       - name: token
+  #         in: header
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: invoiceId
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       '200':
+  #         description: List of invoices retrieved
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 validationResults:
+  #                   type: boolean
+  #       '401':
+  #         description: Invalid token
+  #       '400':
+  #         description: Invalid invoiceId
+
+  # /invoices/{invoiceId}/download:
+  #   post:
+  #     summary: Downloads an invoice
+  #     tags:
+  #       - Invoices
+  #     parameters:
+  #       - name: token
+  #         in: header
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: invoiceId
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       '200':
+  #         description: Invoice downloaded
+  #       '401':
+  #         description: Invalid token
+  #       '400':
+  #         description: Invalid invoiceId
 
   /contacts:
     post:

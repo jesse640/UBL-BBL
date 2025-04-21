@@ -65,10 +65,10 @@ function App() {
 
   return (
     <>
-      <div className="container">
-        <div className="colour colour1"></div>
-        <div className="colour colour2"></div>
-        <div className="colour colour3"></div>
+      <div className='container'>
+        <div className='colour colour1' />
+        <div className='colour colour2' />
+        <div className='colour colour3' />
       </div>
       {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)}></div>}
       <header className="header">
@@ -132,7 +132,7 @@ function App() {
         onLoginSuccess={handleSuccessfulLogin}
       />
     </>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -287,4 +287,4 @@ function CreateInvoice({ onClose }) {
   );
 }
 
-export default CreateInvoice;
+export default CreateInvoice
