@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
+const cors = require('cors')
 
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
@@ -17,6 +18,10 @@ const app = express()
 app.use(express.json())
 
 app.use(cookieParser())
+
+app.use(cors({
+  origin: ['http://localhost:5173']
+}))
 
 // Swagger setup
 const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'))
