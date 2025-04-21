@@ -18,7 +18,12 @@ function LoginModel ({ isOpen, onClose, onLoginSuccess }) {
   }
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
+    
+    if (!formData.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+
+    if (!formData.password) newErrors.password = 'Password is required';
 
     if (!formData.email) newErrors.email = 'Email is required'
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid'
