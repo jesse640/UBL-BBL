@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
-import CreateInvoice from './components/CreateInvoice';
-import ValidateInvoice from './components/ValidateInvoice'; // Import the new component
+import CreateInvoice from './components/CreateInvoice2';
+import ValidateInvoice from './components/ValidateInvoice';
+import ParseOrderToJson from './components/ParseOrderToJson';
+import InvoiceList from './components/InvoiceList';
 
 function App() {
   const [inputJson, setInputJson] = useState('');
@@ -34,6 +36,11 @@ function App() {
     setMenuOpen(false);
   };
 
+  const handleParseOrder = () => {
+    setActivePage('parseOrder');
+    setMenuOpen(false);
+  };
+
   const returnToDashboard = () => {
     setActivePage('dashboard');
   };
@@ -57,9 +64,16 @@ function App() {
         return <CreateInvoice onClose={returnToDashboard} />;
       case 'validateInvoice':
         return <ValidateInvoice onClose={returnToDashboard} />;
+      case 'parseOrder':
+        return <ParseOrderToJson onClose={returnToDashboard} />;
       case 'dashboard':
       default:
-        return <h2 className="welcome-dashboard">Welcome back!</h2>;
+        return (
+          <div className="dashboard-content">
+            <h1 className='dashboard-title'>Welcome back!</h1>
+            <InvoiceList />
+          </div>
+        );
     }
   };
 
@@ -83,7 +97,7 @@ function App() {
             </div>
             <div className={`menu-panel ${menuOpen ? 'open' : ''}`}>
               <div className="menu-buttons">
-                <button className="menu-button">Create Order</button>
+                <button className="menu-button" onClick={handleParseOrder}>Create Order</button>
                 <button className="menu-button" onClick={handleCreateInvoice}>Create Invoice</button>
                 <button className="menu-button" onClick={handleValidateInvoice}>Validate Invoice</button>
                 <div className="menu-divider"></div>
@@ -113,12 +127,21 @@ function App() {
           </>
         ) : (
           <>
-        <main className="main-content">
+        <div className="landing-container">
+        <section className="hero-section">
           <div className="title-container">
             <h1 className="main-title">Minvoicing</h1>
             <p className="subtitle">Making invoices a minimal process.</p>
           </div>
-        </main>
+        </section>
+
+        {/* <section className="about-section">
+          <div className="about-content">
+            <h2>About Us</h2>
+            <p>Your about content here...</p>
+          </div>
+        </section> */}
+      </div>
           </>
         )}
       </div>
@@ -135,4 +158,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

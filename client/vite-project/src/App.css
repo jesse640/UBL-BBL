@@ -9,16 +9,19 @@
 body {
   height: 100vh;
   background: #d0d0d0;
-  font-family: 'Kollektif', sans-serif;}
+  font-family: 'Kollektif', sans-serif;
+  overflow-x: hidden;
+}
 
 .container {
   position: fixed;
   top: 0;
   left: 0;
   height: 100%;
-  width: 100vw;
+  width: 100%;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .colour {
@@ -103,7 +106,7 @@ body {
 }
 
 .title-container {
-  position: fixed;
+  position: absolute;
   top: 30%;
   left: 50%;
   transform: translateX(-50%);
@@ -373,5 +376,21 @@ body {
 .white-box-content {
   max-width: 800px;
   text-align: center;
+}
+
+.dashboard-content {
+  padding: 10px;
+  height: calc(100% - 40px);
+}
+
+.welcome-dashboard {
+  margin-top: 20px;
+  color: #427fad;
+  font-size: 1.5rem;
+}
+
+.dashboard-title {
+  color: #333;
+  font-size: 2.5rem;
 }
 

@@ -64,7 +64,7 @@ function SignupModel ({ isOpen, onClose }) {
       }
 
       setResponse(JSON.stringify(responseData, null, 2))
-      alert('Signup successful!')
+      // alert('Signup successful!')
       onClose()
     } catch (error) {
       setResponse(`Error: ${error.message}`)
