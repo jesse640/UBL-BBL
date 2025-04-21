@@ -1,274 +1,290 @@
 import React, { useState } from 'react';
-import './SignUp.css';
-import axios from 'axios';
+import './CreateInvoice.css';
 
-function CreateInvoice({ onClose, onCreate }) {
-  const [formData, setFormData] = useState({
+function CreateInvoice({ onClose }) {
+  const [invoiceData, setInvoiceData] = useState({
     id: '',
-    issueDate: '',
+    issueDate: getCurrentDate(),
     startDate: '',
     endDate: '',
     supplier: '',
     customer: '',
     currency: 'CAD',
     totalAmount: '',
-    items: [{ description: '', amount: '' }]
+    items: [
+      { description: '', amount: '' }
+    ]
   });
-  const [errors, setErrors] = useState({});
-  const [response, setResponse] = useState('');
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  function getCurrentDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setInvoiceData(prevData => ({
+      ...prevData,
       [name]: value
-    });
+    }));
   };
 
   const handleItemChange = (index, e) => {
     const { name, value } = e.target;
-    const newItems = [...formData.items];
-    newItems[index] = { ...newItems[index], [name]: value };
-    setFormData(prev => ({ ...prev, items: newItems }));
+    const updatedItems = [...invoiceData.items];
+    updatedItems[index] = {
+      ...updatedItems[index],
+      [name]: value
+    };
+    
+    setInvoiceData(prevData => ({
+      ...prevData,
+      items: updatedItems
+    }));
+    
+    // Recalculate total amount
+    if (name === 'amount') {
+      calculateTotalAmount(updatedItems);
+    }
+  };
+
+  const calculateTotalAmount = (items) => {
+    const total = items.reduce((sum, item) => {
+      return sum + (parseFloat(item.amount) || 0);
+    }, 0);
+    
+    setInvoiceData(prevData => ({
+      ...prevData,
+      totalAmount: total.toFixed(2)
+    }));
   };
 
   const addItem = () => {
-    setFormData(prev => ({
-      ...prev,
-      items: [...prev.items, { description: '', amount: '' }]
+    setInvoiceData(prevData => ({
+      ...prevData,
+      items: [...prevData.items, { description: '', amount: '' }]
     }));
   };
 
   const removeItem = (index) => {
-    if (formData.items.length > 1) {
-      const newItems = [...formData.items];
-      newItems.splice(index, 1);
-      setFormData(prev => ({ ...prev, items: newItems }));
-    }
+    const updatedItems = [...invoiceData.items];
+    updatedItems.splice(index, 1);
+    setInvoiceData(prevData => ({
+      ...prevData,
+      items: updatedItems
+    }));
+    calculateTotalAmount(updatedItems);
   };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.id) newErrors.id = 'Invoice ID is required';
-    if (!formData.issueDate) newErrors.issueDate = 'Issue date is required';
-    if (!formData.supplier) newErrors.supplier = 'Supplier is required';
-    if (!formData.customer) newErrors.customer = 'Customer is required';
-    if (!formData.totalAmount) newErrors.totalAmount = 'Total amount is required';
-    
-    formData.items.forEach((item, index) => {
-      if (!item.description) newErrors[`itemDescription${index}`] = 'Description is required';
-      if (!item.amount) newErrors[`itemAmount${index}`] = 'Amount is required';
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleCreate = async () => {
-    try {
-      const response = await axios.post('/create', invoice, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      setResponse(true);
-      onCreate(response.data);
-      alert('Invoice created!')
-      onClose();
-    } catch (error) {
-      console.error('Error creating invoice:', error);
-      alert('Failed to create formData. Please try again.');
-    }
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      handleCreate();
-    };
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/invoice/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(invoiceData),
+      });
+
+      if (response.ok) {
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          // Reset form or close as needed
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to create invoice');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="model-overlay" onClick={(e) => {
-      if (e.target.className === 'model-overlay') {
-        onClose();
-      }
-    }}>
+    <div className="create-invoice-container">
+      <div className="create-invoice-header">
+        <h2>Create New Invoice</h2>
+        <button className="close-button" onClick={onClose}>×</button>
+      </div>
 
-    <div className="model">
-        <div className="model-header">
-          <h2>Create an Account</h2>
-          <button className="close-button" onClick={onClose}>&times;</button>
+      {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">Invoice created successfully!</div>}
+
+      <form onSubmit={handleSubmit} className="invoice-form">
+        <div className="form-grid">
+          <div className="form-group">
+            <label>Invoice ID</label>
+            <input
+              type="text"
+              name="id"
+              value={invoiceData.id}
+              onChange={handleChange}
+              placeholder="INV-001"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Issue Date</label>
+            <input
+              type="date"
+              name="issueDate"
+              value={invoiceData.issueDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Start Date</label>
+            <input 
+              type="date" 
+              name="startDate" 
+              value={invoiceData.startDate} 
+              onChange={handleChange} 
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>End Date</label>
+            <input 
+              type="date" 
+              name="endDate" 
+              value={invoiceData.endDate} 
+              onChange={handleChange} 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Supplier Name</label>
+            <input 
+              type="text" 
+              name="supplier" 
+              value={invoiceData.supplier} 
+              onChange={handleChange} 
+              placeholder="Your Company Name" 
+              required 
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Customer Name</label>
+            <input 
+              type="text" 
+              name="customer" 
+              value={invoiceData.customer} 
+              onChange={handleChange} 
+              placeholder="Client Company Name" 
+              required 
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Currency</label>
+            <select 
+              name="currency" 
+              value={invoiceData.currency} 
+              onChange={handleChange}
+            >
+              <option value="CAD">CAD</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+            </select>
+          </div>
+          
+          <div className="form-group">
+            <label>Total Amount</label>
+            <input 
+              type="number" 
+              name="totalAmount" 
+              value={invoiceData.totalAmount} 
+              readOnly 
+              className="read-only"
+            />
+          </div>
         </div>
-
-        <div className="model-body">
-          <form onSubmit={handleSubmit}>
-            <div className= "form-grid">
-              <div className="form-group">
-                <label htmlFor="id">Invoice Id</label>
-                <input
-                  type="text"
-                  name="id"
-                  value={formData.id}
-                  onChange={handleChange}
-                  className={errors.id ? 'error' : ''}
+        
+        <div className="items-section">
+          <h3>Invoice Items</h3>
+          
+          {invoiceData.items.map((item, index) => (
+            <div key={index} className="item-row">
+              <div className="item-description">
+                <label>Description</label>
+                <input 
+                  type="text" 
+                  name="description" 
+                  value={item.description} 
+                  onChange={(e) => handleItemChange(index, e)} 
+                  placeholder="Item description" 
+                  required 
                 />
-                {errors.id && <div className="error-message">{errors.id}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="issueDate">Issue Date</label>
-                <input
-                  type="date"
-                  name="issueDate"
-                  value={formData.issueDate}
-                  onChange={handleChange}
-                  className={errors.issueDate ? 'error' : ''}
-                />
-                {errors.issueDate && <div className="error-message">{errors.issueDate}</div>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="startDate">Start Date</label>
-                <input
-                  type="date"
-                  name="startDate"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="endDate">End Date</label>
-                <input
-                  type="date"
-                  name="endDate"
-                  value={formData.endDate}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="form-group">
-                  <label htmlFor="supplier">Supplier</label>
-                  <input
-                    type="text"
-                    name="supplier"
-                    value={formData.supplier}
-                    onChange={handleChange}
-                    className={errors.supplier ? 'input-error' : ''}
-                  />
-                  {errors.supplier && <p className="error-message">{errors.supplier}</p>}
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="customer">Customer</label>
-                  <input
-                    type="text"
-                    name="customer"
-                    value={formData.customer}
-                    onChange={handleChange}
-                    className={errors.customer ? 'input-error' : ''}
-                  />
-                  {errors.customer && <p className="error-message">{errors.customer}</p>}
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="currency">Currency</label>
-                  <select
-                    name="currency"
-                    value={formData.currency}
-                    onChange={handleChange}
-                  >
-                    <option value="CAD">CAD</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="GBP">GBP</option>
-                  </select>
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="totalAmount">Total Amount</label>
-                  <input
-                    type="number"
-                    name="totalAmount"
-                    value={formData.totalAmount}
-                    onChange={handleChange}
-                    step="0.01"
-                    className={errors.totalAmount ? 'input-error' : ''}
-                  />
-                  {errors.totalAmount && <p className="error-message">{errors.totalAmount}</p>}
-                </div>
-              </div>
-
-              <div className="invoice-items-section">
-              <div className="items-header">
-                <h3>Invoice Items</h3>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="add-item-btn"
-                >
-                  Add Item
-                </button>
               </div>
               
-              {formData.items.map((item, index) => (
-                <div key={index} className="item-row">
-                  <div className="form-group">
-                    <label>Description*</label>
-                    <input
-                      type="text"
-                      name="description"
-                      value={item.description}
-                      onChange={(e) => handleItemChange(index, e)}
-                      className={errors[`itemDescription${index}`] ? 'input-error' : ''}
-                    />
-                    {errors[`itemDescription${index}`] && (
-                      <p className="error-message">{errors[`itemDescription${index}`]}</p>
-                    )}
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Amount*</label>
-                    <input
-                      type="number"
-                      name="amount"
-                      value={item.amount}
-                      onChange={(e) => handleItemChange(index, e)}
-                      step="0.01"
-                      className={errors[`itemAmount${index}`] ? 'input-error' : ''}
-                    />
-                    {errors[`itemAmount${index}`] && (
-                      <p className="error-message">{errors[`itemAmount${index}`]}</p>
-                    )}
-                  </div>
-                  
-                  <div className="item-actions">
-                    {formData.items.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeItem(index)}
-                        className="remove-item-btn"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+              <div className="item-amount">
+                <label>Amount</label>
+                <input 
+                  type="number" 
+                  name="amount" 
+                  value={item.amount} 
+                  onChange={(e) => handleItemChange(index, e)} 
+                  placeholder="0.00" 
+                  step="0.01" 
+                  required 
+                />
+              </div>
+              
+              {invoiceData.items.length > 1 && (
+                <button 
+                  type="button" 
+                  className="remove-item-button" 
+                  onClick={() => removeItem(index)}
+                >
+                  ×
+                </button>
+              )}
             </div>
-            
-            <div className="form-actions">
-              <button type="button" className="cancel-button" onClick={onClose}>Cancel</button>
-              <button type="submit" className="submit-button">Create Invoice</button>
-            </div>
-          </form>
+          ))}
+          
+          <button 
+            type="button" 
+            className="add-item-button" 
+            onClick={addItem}
+          >
+            + Add Item
+          </button>
         </div>
-      </div>
+        
+        <div className="form-actions">
+          <button type="button" className="cancel-button" onClick={onClose}>
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            className="submit-button" 
+            disabled={loading}
+          >
+            {loading ? 'Creating...' : 'Create Invoice'}
+          </button>
+        </div>
+      </form>
     </div>
   );
-};
+}
 
 export default CreateInvoice;

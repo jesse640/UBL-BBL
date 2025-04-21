@@ -368,11 +368,11 @@
                 <cac:TaxScheme>
                     <cbc:ID>GST</cbc:ID>
                 </cac:TaxScheme>
-            </cac:ClassifiedTaxCategory>
+
         </cac:Item>
 
        <cac:Price>
-           <cbc:PriceAmount currencyID="AUD">7.50</cbc:PriceAmount>
+
            <cac:AllowanceCharge>
               <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
               <cbc:Amount currencyID="AUD">0.00</cbc:Amount>
