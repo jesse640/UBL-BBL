@@ -347,7 +347,6 @@ body {
   padding: 15px;
 }
 
-/* Optional: Add overlay when menu is open */
 .menu-overlay {
   position: fixed;
   top: 0;

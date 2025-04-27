@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import XMLParser from 'react-xml-parser'
 import './ParseOrderToJson.css'
 
 const ParseOrderToJson = ({ onClose }) => {
@@ -7,33 +8,41 @@ const ParseOrderToJson = ({ onClose }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleParseLocally = () => {
     setLoading(true)
     setError('')
-
     try {
-      const response = await fetch('http://34.201.243.150:3000/invoiceV2/parseOrder2json', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/xml',
-          Accept: 'application/json'
-        },
-        body: xmlInput.trim()
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to parse XML')
-      }
-
-      const data = await response.json()
-      setJsonOutput(JSON.stringify(data, null, 2))
+      const xml = new XMLParser().parseFromString(xmlInput.trim())
+      const orderData = extractOrderData(xml)
+      setJsonOutput(JSON.stringify(orderData, null, 2))
     } catch (err) {
-      setError(err.message)
+      setError('Invalid XML format')
       setJsonOutput('')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const extractOrderData = (xml) => {
+    const getValue = (tagName) => xml.getElementsByTagName(tagName)[0]?.value || ''
+
+    const orderLines = xml.getElementsByTagName('cac:OrderLine').map(line => {
+      return {
+        description: line.getElementsByTagName('cbc:Description')[0]?.value || '',
+        amount: line.getElementsByTagName('cbc:LineExtensionAmount')[0]?.value || ''
+      }
+    })
+
+    return {
+      id: getValue('cbc:ID'),
+      issueDate: getValue('cbc:IssueDate'),
+      startDate: getValue('cbc:StartDate'),
+      endDate: getValue('cbc:EndDate'),
+      supplier: getValue('cbc:Name'),
+      customer: getValue('cbc:Name'),
+      currency: xml.getElementsByTagName('cbc:PayableAmount')[0]?.attributes?.currencyID || '',
+      totalAmount: getValue('cbc:PayableAmount'),
+      items: orderLines
     }
   }
 
@@ -64,7 +73,7 @@ const ParseOrderToJson = ({ onClose }) => {
         <div className='controls'>
           <button
             className='parse-button'
-            onClick={handleSubmit}
+            onClick={handleParseLocally}
             disabled={!xmlInput.trim() || loading}
           >
             {loading ? 'Processing...' : 'Parse XML to JSON'}
