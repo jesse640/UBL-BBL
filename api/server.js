@@ -19,7 +19,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use(cors({
-  origin: ['http://localhost:5173']
+  origin: ['http://34.201.243.150:5173']
 }))
 
 // Swagger setup
