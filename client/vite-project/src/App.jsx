@@ -8,8 +8,6 @@ import ParseOrderToJson from './components/ParseOrderToJson'
 import InvoiceList from './components/InvoiceList'
 
 function App () {
-  const [inputJson, setInputJson] = useState('')
-  const [response, setResponse] = useState('')
   const [showSignupModel, setShowSignupModel] = useState(false)
   const [showLoginModel, setShowLoginModel] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
