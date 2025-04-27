@@ -13,7 +13,7 @@ const ParseOrderToJson = ({ onClose }) => {
     setError('')
 
     try {
-      const response = await fetch('http://localhost:3000/invoiceV2/parseOrder2json', {
+      const response = await fetch('http://34.201.243.150:3000/invoiceV2/parseOrder2json', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/xml',

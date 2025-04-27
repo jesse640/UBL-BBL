@@ -8,7 +8,7 @@ function App () {
     try {
       const jsonData = JSON.parse(inputJson)
 
-      const response = await fetch('http://localhost:3000/users/signup', {
+      const response = await fetch('http://34.201.243.150:3000/users/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

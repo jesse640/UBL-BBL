@@ -97,7 +97,7 @@ function CreateInvoice ({ onClose }) {
     console.log('Submitting invoice with token:', token)
 
     try {
-      const response = await fetch('http://localhost:3000/invoicev2/create', {
+      const response = await fetch('http://34.201.243.150:3000/invoicev2/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

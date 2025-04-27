@@ -18,7 +18,7 @@ function ValidateInvoice ({ onClose }) {
     setPeppolResults({ status: null, message: 'Validating...', errors: [] })
 
     try {
-      const schemaResponse = await fetch('http://localhost:3000/invoiceV2/validate/UBL-Invoice-2.1', {
+      const schemaResponse = await fetch('http://34.201.243.150:3000/invoiceV2/validate/UBL-Invoice-2.1', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/xml',
@@ -49,7 +49,7 @@ function ValidateInvoice ({ onClose }) {
       }
 
       // Validate A-NZ-PEPPOL
-      const peppolResponse = await fetch('http://localhost:3000/invoiceV2/validate/A-NZ-PEPPOL', {
+      const peppolResponse = await fetch('http://34.201.243.150:3000/invoiceV2/validate/A-NZ-PEPPOL', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/xml',

@@ -42,7 +42,7 @@ function LoginModel ({ isOpen, onClose, onLoginSuccess }) {
         password: formData.password
       }
 
-      const response = await fetch('http://localhost:3000/users/login', {
+      const response = await fetch('http://34.201.243.150:3000/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
