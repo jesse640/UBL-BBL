@@ -10,7 +10,7 @@ function CreateInvoice({ onClose }) {
     supplier: '',
     customer: '',
     totalAmount: '',
-    currency: 'CAD',
+    currency: 'AUD',
     items: [{ description: '', quantity: 1, amount: 0, totalAmount: 0 }]
   });
   
@@ -71,14 +71,12 @@ function CreateInvoice({ onClose }) {
     setSuccess('');
     setLoading(true);
     
-    // Validate required fields
     if (!formData.id || !formData.issueDate || !formData.supplier || !formData.customer) {
       setError('Please fill all required fields');
       setLoading(false);
       return;
     }
 
-    // Validate items
     for (const item of formData.items) {
       if (!item.description || !item.quantity || !item.amount) {
         setError('Please fill all item fields');
@@ -115,17 +113,14 @@ function CreateInvoice({ onClose }) {
       }
     };
 
-    // Get existing invoices from localStorage or initialize empty array
     const existingInvoices = JSON.parse(localStorage.getItem('dummyInvoices')) || [];
     
-    // Check if invoice with this ID already exists
     if (existingInvoices.some(inv => inv.invoiceId === newInvoice.invoiceId)) {
       setError('An invoice with this ID already exists');
       setLoading(false);
       return;
     }
 
-    // Add new invoice and save to localStorage
     const updatedInvoices = [...existingInvoices, newInvoice];
     localStorage.setItem('dummyInvoices', JSON.stringify(updatedInvoices));
     
@@ -138,7 +133,7 @@ function CreateInvoice({ onClose }) {
       supplier: '',
       customer: '',
       totalAmount: '',
-      currency: 'CAD',
+      currency: 'AUD',
       items: [{ description: '', quantity: 1, amount: 0, totalAmount: 0 }]
     });
     setLoading(false);
@@ -236,10 +231,10 @@ function CreateInvoice({ onClose }) {
               value={formData.currency}
               onChange={handleChange}
             >
-              <option value="CAD">CAD</option>
-              <option value="USD">USD</option>
+              <option value="AUD">AUD</option>
+              <option value="NZD">NZD</option>
               <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
+              <option value="USD">USD</option>
             </select>
           </div>
         </div>

@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './CreateInvoice.css';
-import XMLParser from 'react-xml-parser';
 
 function CreateInvoice({ onClose }) {
   const [formData, setFormData] = useState({
@@ -11,13 +10,14 @@ function CreateInvoice({ onClose }) {
     supplier: '',
     customer: '',
     totalAmount: '',
-    currency: 'CAD',
+    currency: 'AUD',
     items: [{ description: '', quantity: 1, amount: 0, totalAmount: 0 }]
   });
   
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +31,6 @@ function CreateInvoice({ onClose }) {
     const updatedItems = [...formData.items];
     updatedItems[index][field] = value;
     
-    // If quantity or amount changes, update the totalAmount for this item
     if (field === 'quantity' || field === 'amount') {
       const qty = field === 'quantity' ? value : updatedItems[index].quantity;
       const amt = field === 'amount' ? value : updatedItems[index].amount;
@@ -67,27 +66,48 @@ function CreateInvoice({ onClose }) {
     }, 0).toFixed(2);
   };
 
+  const resetForm = () => {
+    setFormData({
+      id: '',
+      issueDate: '',
+      startDate: '',
+      endDate: '',
+      supplier: '',
+      customer: '',
+      totalAmount: '',
+      currency: 'AUD',
+      items: [{ description: '', quantity: 1, amount: 0, totalAmount: 0 }]
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
     
-    // Calculate total amount
+    if (!token) {
+      setError('Authentication token is missing. Please log in again.');
+      setLoading(false);
+      return;
+    }
+    
     const calculatedTotal = calculateTotal();
     
+    console.log('Submitting invoice with token:', token);
+    
     try {
-      const response = await fetch('http://localhost:3000/api/invoicev2/create', {
+      const response = await fetch('http://localhost:3000/invoicev2/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           id: formData.id,
           issueDate: formData.issueDate,
-          startDate: formData.startDate || null,  // Send null if empty
-          endDate: formData.endDate || null,      // Send null if empty
+          startDate: formData.startDate || null,
+          endDate: formData.endDate || null,
           supplier: formData.supplier,
           customer: formData.customer,
           totalAmount: calculatedTotal,
@@ -99,125 +119,38 @@ function CreateInvoice({ onClose }) {
           }))
         })
       });
-  
-      // First check if the response is OK
+      
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        // Try to parse error response as JSON, fallback to text if it fails
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (jsonError) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || errorData.message || 'Failed to create invoice');
+        } else {
           const textError = await response.text();
-          throw new Error(textError || 'Failed to create invoice');
+          throw new Error(textError || `Failed to create invoice (Status: ${response.status})`);
         }
-        throw new Error(errorData.error || errorData.message || 'Failed to create invoice');
       }
-  
-      // Check if response has content before trying to parse as JSON
-      const responseText = await response.text();
-      if (!responseText) {
-        // Empty response is acceptable if status is 200
-        setSuccess('Invoice created successfully!');
-        // Reset form after successful submission
-        setFormData({
-          id: '',
-          issueDate: '',
-          startDate: '',
-          endDate: '',
-          supplier: '',
-          customer: '',
-          totalAmount: '',
-          currency: 'CAD',
-          items: [{ description: '', quantity: 1, amount: 0, totalAmount: 0 }]
-        });
-        return;
-      }
-  
-      // If there is response content, try to parse as JSON
-      try {
-        const data = JSON.parse(responseText);
+      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
         setSuccess(data.message || 'Invoice created successfully!');
-        // Reset form after successful submission
-        setFormData({
-          id: '',
-          issueDate: '',
-          startDate: '',
-          endDate: '',
-          supplier: '',
-          customer: '',
-          totalAmount: '',
-          currency: 'CAD',
-          items: [{ description: '', quantity: 1, amount: 0, totalAmount: 0 }]
-        });
-      } catch (parseError) {
-        // If it's not JSON but we got a 200 OK, treat as success
+      } else {
         setSuccess('Invoice created successfully!');
-        // Reset form after successful submission
-        setFormData({
-          id: '',
-          issueDate: '',
-          startDate: '',
-          endDate: '',
-          supplier: '',
-          customer: '',
-          totalAmount: '',
-          currency: 'CAD',
-          items: [{ description: '', quantity: 1, amount: 0, totalAmount: 0 }]
-        });
       }
+      
+      resetForm();
+      
     } catch (error) {
+      console.error('Error creating invoice:', error);
       setError(error.message || 'Failed to create invoice');
     } finally {
       setLoading(false);
     }
   };
 
-  const createXmlDocument = (data) => {
-    // This is just for reference, we're not actually using it in the submission
-    // since the backend will construct the XML
-    const xml = `
-      <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
-               xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-               xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
-        <cbc:ID>${data.id}</cbc:ID>
-        <cbc:IssueDate>${data.issueDate}</cbc:IssueDate>
-        <cac:InvoicePeriod>
-          <cbc:StartDate>${data.startDate}</cbc:StartDate>
-          <cbc:EndDate>${data.endDate}</cbc:EndDate>
-        </cac:InvoicePeriod>
-        <cac:AccountingSupplierParty>
-          <cac:Party>
-            <cac:PartyName>
-              <cbc:Name>${data.supplier}</cbc:Name>
-            </cac:PartyName>
-          </cac:Party>
-        </cac:AccountingSupplierParty>
-        <cac:AccountingCustomerParty>
-          <cac:Party>
-            <cac:PartyName>
-              <cbc:Name>${data.customer}</cbc:Name>
-            </cac:PartyName>
-          </cac:Party>
-        </cac:AccountingCustomerParty>
-        <cac:LegalMonetaryTotal>
-          <cbc:PayableAmount currencyID="${data.currency}">${data.totalAmount}</cbc:PayableAmount>
-        </cac:LegalMonetaryTotal>
-        ${data.items.map((item, index) => `
-          <cac:InvoiceLine>
-            <cbc:ID>${index + 1}</cbc:ID>
-            <cbc:InvoicedQuantity unitCode="EA">${item.quantity}</cbc:InvoicedQuantity>
-            <cbc:LineExtensionAmount currencyID="${data.currency}">${(item.quantity * item.amount).toFixed(2)}</cbc:LineExtensionAmount>
-            <cac:Item>
-              <cbc:Description>${item.description}</cbc:Description>
-            </cac:Item>
-          </cac:InvoiceLine>
-        `).join('')}
-      </Invoice>
-    `;
-    return xml;
-  };
-
-  // Rest of your component remains the same...
   return (
     <div className="create-invoice-container">
       <div className="invoice-header">
@@ -310,10 +243,10 @@ function CreateInvoice({ onClose }) {
               value={formData.currency}
               onChange={handleChange}
             >
-              <option value="CAD">CAD</option>
-              <option value="USD">USD</option>
+              <option value="AUD">AUD</option>
+              <option value="NZD">NZD</option>
               <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
+              <option value="USD">USD</option>
             </select>
           </div>
         </div>

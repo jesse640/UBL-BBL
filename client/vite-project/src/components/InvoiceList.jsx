@@ -130,7 +130,7 @@ const InvoiceList = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="close-modal" onClick={closeModal}>×</button>
-            <h2>Invoice #{selectedInvoice.invoiceId}</h2>
+            <h2 className = "invoice-text">Invoice #{selectedInvoice.invoiceId}</h2>
             
             <div className="invoice-summary">
               <div>
