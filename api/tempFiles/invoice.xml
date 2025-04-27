@@ -375,7 +375,7 @@
            <cbc:PriceAmount currencyID="AUD">7.50</cbc:PriceAmount>
            <cac:AllowanceCharge>
               <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
-              <cbc:Amount currencyID="USD">0.00</cbc:Amount>
+              <cbc:Amount currencyID="AUD">0.00</cbc:Amount>
               <cbc:BaseAmount currencyID="AUD">7.50</cbc:BaseAmount>
            </cac:AllowanceCharge>
        </cac:Price>
