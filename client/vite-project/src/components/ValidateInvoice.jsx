@@ -9,7 +9,6 @@ function ValidateInvoice ({ onClose }) {
 
   const handleValidate = async () => {
     if (!xmlInput.trim()) {
-      alert('Please enter XML content first')
       return
     }
 
@@ -80,7 +79,6 @@ function ValidateInvoice ({ onClose }) {
       }
     } catch (error) {
       console.error('Validation error:', error)
-      alert(`An error occurred: ${error.message}`)
     } finally {
       setIsValidating(false)
     }

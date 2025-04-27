@@ -269,10 +269,13 @@ function CreateInvoice ({ onClose }) {
                   <label>Unit Price*</label>
                   <input
                     type='number'
-                    step='0.01'
+                    step='1'
                     min='0'
                     value={item.amount}
-                    onChange={(e) => handleItemChange(index, 'amount', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleItemChange(index, 'amount', value === '' ? '' : parseFloat(value) || 0)
+                    }}
                     required
                   />
                 </div>
